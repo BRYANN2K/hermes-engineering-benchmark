@@ -1,0 +1,128 @@
+== baseline: same-UID host process can read canary ==
+baseline_canary=HIDDEN_CANARY_7f31d9b4
+== sandbox adversarial probe ==
+{
+  "all_ok": true,
+  "limitations_observed": [
+    "Landlock does not mediate stat(2): hidden inode metadata remains visible when the exact path is known (size=23, mode=0o600)."
+  ],
+  "results": {
+    "clone3_disabled": {
+      "detail": "result=-1 errno=38",
+      "ok": true
+    },
+    "clone_namespace_escape": {
+      "detail": "result=-1 errno=1",
+      "ok": true
+    },
+    "environment_scrubbed": {
+      "detail": "unexpected=[]",
+      "ok": true
+    },
+    "hidden_directory_list": {
+      "detail": "errno=13 Permission denied",
+      "ok": true
+    },
+    "hidden_read": {
+      "detail": "errno=13 Permission denied",
+      "ok": true
+    },
+    "host_read_etc": {
+      "detail": "errno=13 Permission denied",
+      "ok": true
+    },
+    "inet6_socket": {
+      "detail": "errno=1 Operation not permitted",
+      "ok": true
+    },
+    "inet_socket": {
+      "detail": "errno=1 Operation not permitted",
+      "ok": true
+    },
+    "inherited_fd_closed": {
+      "detail": "errno=9 Bad file descriptor",
+      "ok": true
+    },
+    "kernel_guards_active": {
+      "detail": "no_new_privs=1 seccomp_mode=2 cap_effective=0x0 cap_permitted=0x0 euid=0",
+      "ok": true
+    },
+    "nested_namespace_escape": {
+      "detail": "exit=1",
+      "ok": true
+    },
+    "outside_chmod": {
+      "detail": "errno=1 Operation not permitted",
+      "ok": true
+    },
+    "outside_hardlink": {
+      "detail": "errno=18 Invalid cross-device link",
+      "ok": true
+    },
+    "outside_rename": {
+      "detail": "errno=13 Permission denied",
+      "ok": true
+    },
+    "outside_unlink": {
+      "detail": "errno=13 Permission denied",
+      "ok": true
+    },
+    "outside_write": {
+      "detail": "errno=13 Permission denied",
+      "ok": true
+    },
+    "runtime_read": {
+      "detail": "'RUNTIME_ASSET'",
+      "ok": true
+    },
+    "runtime_unlink": {
+      "detail": "errno=13 Permission denied",
+      "ok": true
+    },
+    "runtime_write": {
+      "detail": "errno=13 Permission denied",
+      "ok": true
+    },
+    "socketpair": {
+      "detail": "errno=1 Operation not permitted",
+      "ok": true
+    },
+    "subprocess_workspace_edit": {
+      "detail": "exit=0",
+      "ok": true
+    },
+    "symlink_escape_read": {
+      "detail": "errno=13 Permission denied",
+      "ok": true
+    },
+    "unix_socket": {
+      "detail": "errno=1 Operation not permitted",
+      "ok": true
+    },
+    "workspace_chmod": {
+      "detail": "errno=1 Operation not permitted",
+      "ok": true
+    },
+    "workspace_mutation": {
+      "detail": "create+append+mkdir+rename succeeded",
+      "ok": true
+    }
+  }
+}
+== network CLI negative probe ==
+curl_exit=7
+curl_stderr=  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current                                  Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0 curl: (7) Failed to connect to 1.1.1.1 port 80 after 0 ms: Could not connect to server
+== git workspace smoke ==
+git_status_exit=0
+== post-state ==
+outside_write=ABSENT
+canary_after=HIDDEN_CANARY_7f31d9b4
+workspace_edit=workspace edit succeeded|append succeeded|
+== hashes ==
+106261c28b02a50e926f2bb58f7bc918dae235abe11c3ac08697cf87b78c0707  landlock-run
+b0d2cf343d3deea0f251c3b9f0eac86af13b926cc3f53fb3b6600790f82c6198  landlock-run.c
+15c247eeea2c3db5f55aeda7af6f37b4785357e7e0848e1f4ddc95e2b6ea2c40  sandbox-run
+fda173d526862fce4742cb32c02a1bfb96038a4a357f54b48465db341f3a8e0d  probe.py
+ed8eab940ebd51f048241aed66637b6046e3da40555b67cf76a8905874cc4a13  run-tests

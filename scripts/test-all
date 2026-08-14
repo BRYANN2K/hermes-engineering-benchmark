@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
+unset PYTHONPATH PYTHONHOME HEB_TOOL_SANDBOX HEB_SANDBOX_RUN HEB_SANDBOX_TRACE HERMES_WRITE_SAFE_ROOT TERMINAL_CWD
+mkdir -p "$root/proof"
+"$root/scripts/build-sandbox"
+"$root/runtime/sandbox/run-tests" > "$root/proof/sandbox-kernel-tests.txt"
+python3 -m unittest discover -s "$root/harness/runner/tests" -v 2>&1 | tee "$root/proof/runner-unit-tests.txt"
+python3 "$root/scripts/validate_suite.py" --jobs 4

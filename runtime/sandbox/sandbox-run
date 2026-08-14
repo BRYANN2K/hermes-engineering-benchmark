@@ -1,0 +1,133 @@
+#!/usr/bin/bash
+# Fail-closed local grader sandbox: namespaces + Landlock ABI 4 + seccomp.
+set -eu -o pipefail
+PATH=${SANDBOX_PATH-/usr/bin:/bin}
+export PATH
+
+# Never let an untrusted Python subprocess re-import the host-side Hermes hook.
+# The current command is already confined by this script; recursive injection
+# would couple it to host paths and could fail after the run is archived.
+heb_sandbox_trace=${HEB_SANDBOX_TRACE-}
+unset PYTHONPATH PYTHONHOME HEB_TOOL_SANDBOX HEB_SANDBOX_RUN HEB_SANDBOX_TRACE
+
+die() {
+    printf 'sandbox-run: %s\n' "$*" >&2
+    exit 125
+}
+
+[ "$#" -ge 2 ] || die "usage: sandbox-run WORKSPACE COMMAND [ARG ...]"
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+runner="$script_dir/landlock-run"
+[ -x "$runner" ] || die "missing compiled helper: $runner"
+
+workspace=$1
+shift
+[ -d "$workspace" ] || die "workspace is not an existing directory: $workspace"
+workspace=$(CDPATH= cd -- "$workspace" && pwd -P)
+[ ! -L "$workspace" ] || die "workspace must not be a symlink"
+
+# Emit one trusted activation marker per tool invocation. Never include the
+# shell command or environment: the public trace proves confinement was used
+# without leaking prompts, paths outside the run, or credentials.
+if [ -n "$heb_sandbox_trace" ]; then
+    trace_parent=$(CDPATH= cd -- "$(dirname -- "$heb_sandbox_trace")" && pwd -P)
+    [ "$trace_parent" = "$(dirname -- "$workspace")" ] || die "trace must be beside workspace"
+    [ ! -L "$heb_sandbox_trace" ] || die "trace must not be a symlink"
+    printf '{"sandbox":"landlock-seccomp-netns","activated":true}\n' >> "$heb_sandbox_trace"
+fi
+
+# Landlock labels mounts, not just path strings. A pre-existing submount under
+# the starter repo could otherwise carry a hidden tree into the writable rule.
+if /usr/bin/findmnt --submounts --noheadings --output TARGET "$workspace" | /usr/bin/grep -q .; then
+    die "workspace contains a mount point; refuse ambiguous writable tree"
+fi
+
+# Avoid symlink/permission policy ambiguity before entering the sandbox.
+while IFS= read -r -d '' entry; do
+    [ ! -L "$entry" ] || die "workspace contains symlink: $entry"
+    [ ! -u "$entry" ] || die "workspace contains setuid file: $entry"
+    [ ! -g "$entry" ] || die "workspace contains setgid file: $entry"
+done < <(/usr/bin/find "$workspace" -xdev -print0)
+
+case $1 in
+    */*) command_path=$1 ;;
+    *) command_path=$(command -v -- "$1") || die "command not found: $1" ;;
+esac
+[ -f "$command_path" ] || die "command is not a regular file: $command_path"
+command_path=$(readlink -f -- "$command_path")
+[ -x "$command_path" ] || die "command is not executable: $command_path"
+shift
+
+set -- "$runner" "$workspace" -- "$command_path" "$@"
+
+# Optional colon-separated runtime trees. These are read-only and must never
+# include the hidden-grader tree. A Python venv/install used by Hermes belongs
+# here; credentials and the real Hermes home do not.
+ro_paths=${SANDBOX_RO_PATHS-}
+command_allowed=false
+case "$command_path/" in
+    /usr/*|"$workspace/"*) command_allowed=true ;;
+esac
+old_ifs=$IFS
+IFS=:
+for path in $ro_paths; do
+    [ -n "$path" ] || continue
+    [ -e "$path" ] || die "SANDBOX_RO_PATHS entry does not exist: $path"
+    canonical=$(readlink -f -- "$path")
+    case "$canonical/" in
+        "$workspace/"*) die "SANDBOX_RO_PATHS entry overlaps workspace: $canonical" ;;
+    esac
+    case "$workspace/" in
+        "$canonical/"*) die "SANDBOX_RO_PATHS entry is an ancestor of workspace: $canonical" ;;
+    esac
+    case "$command_path/" in
+        "$canonical/"*) command_allowed=true ;;
+    esac
+done
+IFS=$old_ifs
+$command_allowed || die "command must be in /usr, workspace, or SANDBOX_RO_PATHS: $command_path"
+
+# Apply coarse denial-of-service limits before creating the namespaces.
+ulimit -t "${SANDBOX_CPU_SECONDS:-600}" || die "cannot set CPU limit"
+ulimit -n "${SANDBOX_OPEN_FILES:-256}" || die "cannot set fd limit"
+ulimit -u "${SANDBOX_PROCESSES:-256}" || die "cannot set process limit"
+ulimit -v "${SANDBOX_MEMORY_KB:-4194304}" || die "cannot set address-space limit"
+
+# A regular-file stdin would bypass pathname confinement through an inherited
+# descriptor, so fail closed. Hermes file writes use an anonymous pipe; that
+# stream is safe to inherit because it cannot be sought or reopened by path.
+stdin_pipe=0
+if [ -p /dev/stdin ]; then
+    stdin_pipe=1
+elif [ -c /dev/stdin ]; then
+    exec </dev/null
+else
+    die "stdin must be /dev/null-like character device or an anonymous pipe"
+fi
+
+# The network namespace is the primary network boundary (only a down loopback
+# device). Seccomp independently rejects every socket creation and namespace /
+# mount escape syscall. Landlock confines readable paths and workspace writes.
+# Trusted cat relays ensure the untrusted child sees only output pipes, never a
+# caller-owned regular file descriptor that it could seek or rewrite directly.
+set +e
+env -i \
+    PATH="$PATH" \
+    HOME="$workspace" \
+    TMPDIR="$workspace" \
+    LC_ALL=C.UTF-8 \
+    SANDBOX_RO_PATHS="$ro_paths" \
+    SANDBOX_ALLOW_LOOPBACK="${SANDBOX_ALLOW_LOOPBACK-}" \
+    SANDBOX_ALLOW_STDIN_PIPE="$stdin_pipe" \
+    unshare \
+        --user --map-root-user \
+        --mount --propagation unchanged \
+        --net --ipc --uts --pid --cgroup \
+        --fork --kill-child=KILL \
+        "$@" \
+        > >(/usr/bin/cat) \
+        2> >(/usr/bin/cat >&2)
+rc=$?
+wait || true
+exit "$rc"

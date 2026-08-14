@@ -1,0 +1,80 @@
+#!/usr/bin/bash
+set -eu -o pipefail
+PATH=/usr/bin:/bin
+export PATH
+
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+cd "$here"
+
+temp_parent=${TMPDIR:-/tmp}
+test_root=$(mktemp -d "$temp_parent/heb-sandbox-test.XXXXXX")
+cleanup() {
+    chmod -R u+w "$test_root" 2>/dev/null || true
+    rm -rf "$test_root"
+}
+trap cleanup EXIT HUP INT TERM
+workspace="$test_root/workspace"
+hidden="$test_root/hidden-grader"
+assets="$test_root/runtime-assets"
+
+cc -std=c11 -O2 -Wall -Wextra -Werror -o landlock-run landlock-run.c
+chmod 0755 landlock-run sandbox-run probe.py run-tests
+mkdir -p "$workspace/git-smoke" "$hidden" "$assets"
+printf 'HIDDEN_CANARY_7f31d9b4\n' > "$hidden/canary.txt"
+printf 'RUNTIME_ASSET\n' > "$assets/data.txt"
+chmod 0700 "$hidden"
+chmod 0600 "$hidden/canary.txt"
+chmod 0555 "$assets"
+chmod 0444 "$assets/data.txt"
+cp probe.py "$workspace/probe.py"
+
+printf '== baseline: same-UID host process can read canary ==\n'
+printf 'baseline_canary='
+IFS= read -r canary < "$hidden/canary.txt"
+printf '%s\n' "$canary"
+
+printf '== sandbox adversarial probe ==\n'
+# Deliberately inherit the hidden file as fd 9; landlock-run must close it.
+exec 9< "$hidden/canary.txt"
+SANDBOX_RO_PATHS="$assets" \
+    ./sandbox-run "$workspace" \
+    /usr/bin/python3 "$workspace/probe.py" \
+    "$hidden/canary.txt" \
+    "$test_root/outside-write.txt" \
+    "$assets/data.txt" \
+    | tee "$test_root/verification.json"
+exec 9<&-
+
+# The adversarial probe creates a symlink; remove it before fresh invocations.
+unlink "$workspace/symlink-to-hidden" 2>/dev/null || true
+
+printf '== network CLI negative probe ==\n'
+set +e
+./sandbox-run "$workspace" /usr/bin/curl \
+    --noproxy '*' --connect-timeout 2 http://1.1.1.1/ \
+    > "$test_root/curl.stdout" 2> "$test_root/curl.stderr"
+curl_rc=$?
+set -e
+printf 'curl_exit=%s\n' "$curl_rc"
+printf 'curl_stderr='
+tr '\n' ' ' < "$test_root/curl.stderr"
+printf '\n'
+if [ "$curl_rc" -eq 0 ]; then
+    printf 'network negative probe unexpectedly succeeded\n' >&2
+    exit 1
+fi
+
+printf '== git workspace smoke ==\n'
+git -C "$workspace/git-smoke" init -q
+./sandbox-run "$workspace" /usr/bin/git -C "$workspace/git-smoke" status --short
+printf 'git_status_exit=0\n'
+
+printf '== post-state ==\n'
+test ! -e "$test_root/outside-write.txt"
+printf 'outside_write=ABSENT\n'
+IFS= read -r canary < "$hidden/canary.txt"
+printf 'canary_after=%s\n' "$canary"
+printf 'workspace_edit=%s\n' "$(tr '\n' '|' < "$workspace/edited.txt")"
+
+printf '== hashes ==\n'
+sha256sum landlock-run landlock-run.c sandbox-run probe.py run-tests

@@ -1,0 +1,1 @@
+const list=document.querySelector('#tasks');async function load(){const r=await fetch('/api/tasks');const {tasks}=await r.json();list.replaceChildren(...tasks.map(t=>{const li=document.createElement('li');li.textContent=t.title;li.dataset.version=t.version;return li}));}load();

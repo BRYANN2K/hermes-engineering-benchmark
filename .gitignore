@@ -1,0 +1,34 @@
+# Runtime and local-only artifacts
+runs/
+results/
+*.tmp
+*.stderr.tmp
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+
+# Compiled helper: rebuild from the committed C source
+runtime/sandbox/landlock-run
+
+# Active hidden graders are withheld from the pre-campaign public branch.
+# They are force-added in the post-campaign disclosure commit.
+private_graders/
+
+# Full validation reports contain hidden-test failure excerpts. Publish only
+# their checksummed commitments and concise pass summaries until disclosure.
+proof/suite-validation.json
+proof/runner-integration-validation.json
+proof/campaign-plan.json
+proof/campaign-*-block-*.json
+proof/*-create.txt
+proof/*-write.txt
+freeze-manifest.json
+
+# Local credentials and environment files are never benchmark inputs
+.env
+.env.*
+auth.json
+config.yaml
+*.pem
+*.key

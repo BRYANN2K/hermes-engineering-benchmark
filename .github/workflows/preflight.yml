@@ -1,0 +1,45 @@
+name: preflight
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  public-preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Static validation
+        run: |
+          python3 -m py_compile scripts/*.py harness/runner/runner.py runtime/hermes_tool_sandbox/sitecustomize.py
+          python3 -m json.tool suite.json >/dev/null
+          python3 -m json.tool model-roster.json >/dev/null
+          python3 -m json.tool pricing/official-pricing-2026-08-13.json >/dev/null
+      - name: Build and test kernel sandbox
+        run: |
+          ./scripts/build-sandbox
+          if unshare --user --map-root-user true 2>/dev/null; then
+            ./runtime/sandbox/run-tests
+          else
+            echo 'GitHub-hosted kernel blocks unprivileged user namespaces; kernel isolation proof is host-specific.'
+            echo 'See proof/sandbox-kernel-tests.txt and proof/hermes-tool-sandbox-validation.json for the campaign-host evidence.'
+          fi
+      - name: Runner unit tests
+        run: python3 -m unittest discover -s harness/runner/tests -v
+      - name: Verify frozen public source tree
+        run: |
+          if test -f freeze-manifest.public.json; then
+            python3 scripts/verify_public_freeze.py
+          fi
+      - name: Validate full disclosed suite
+        run: |
+          if test -d private_graders; then
+            python3 scripts/validate_suite.py --jobs 4
+            python3 scripts/validate_runner_integration.py --jobs 4
+            python3 scripts/freeze.py verify
+          else
+            echo 'Hidden grader source is withheld during the active campaign; verifying committed hashes only.'
+          fi

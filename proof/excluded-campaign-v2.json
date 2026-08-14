@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "campaign-20260813-v2",
+  "eligible": false,
+  "artifacts_preserved": true,
+  "runs_completed": 6,
+  "reason": "The canary revealed that runner schema 1.0 classified a deterministic grader rejection (exit 1 with valid JSON) as grader_completed=false. This conflated a valid functional failure with grader infrastructure failure. The runner semantics and regression tests were corrected after these model calls.",
+  "leaderboard_policy": "No v2 artifact may be aggregated, resumed, regraded, or relabelled as a v3 run.",
+  "successor_campaign_id": "campaign-20260813-v3"
+}

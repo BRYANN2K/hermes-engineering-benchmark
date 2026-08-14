@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0",
+  "benchmark_name": "Hermes Engineering Benchmark",
+  "campaign_id": "campaign-20260813-v3",
+  "benchmark_claim": "Raw-model, agentic software-engineering benchmark using one shared Hermes scaffold",
+  "primary_metrics": [
+    "resolved_rate_pass_at_1",
+    "api_equivalent_cost_per_resolved_task"
+  ],
+  "secondary_metrics": [
+    "consistency_all_three_attempts_on_repeat_subset",
+    "median_wall_seconds",
+    "p95_wall_seconds",
+    "tool_calls",
+    "provider_error_rate"
+  ],
+  "tasks": [
+    {"id":"BUG-01","track":"repository_bug_fixing"},
+    {"id":"BUG-02","track":"repository_bug_fixing"},
+    {"id":"BUG-03","track":"repository_bug_fixing"},
+    {"id":"BUG-04","track":"repository_bug_fixing"},
+    {"id":"BUG-05","track":"repository_bug_fixing"},
+    {"id":"FEAT-01","track":"feature_implementation"},
+    {"id":"FEAT-02","track":"feature_implementation"},
+    {"id":"FEAT-03","track":"feature_implementation"},
+    {"id":"FEAT-04","track":"feature_implementation"},
+    {"id":"API-01","track":"backend_api"},
+    {"id":"API-02","track":"backend_api"},
+    {"id":"API-03","track":"backend_api"},
+    {"id":"API-04","track":"backend_api"},
+    {"id":"API-05","track":"backend_api"},
+    {"id":"UI-01","track":"frontend_ui"},
+    {"id":"UI-02","track":"frontend_ui"},
+    {"id":"UI-03","track":"frontend_ui"},
+    {"id":"UI-04","track":"frontend_ui"},
+    {"id":"UI-05","track":"frontend_ui"},
+    {"id":"FULL-01","track":"full_stack"},
+    {"id":"FULL-02","track":"full_stack"},
+    {"id":"FULL-03","track":"full_stack"},
+    {"id":"DATA-01","track":"data_sql"},
+    {"id":"DATA-02","track":"data_sql"},
+    {"id":"DATA-03","track":"data_sql"},
+    {"id":"DATA-04","track":"data_sql"},
+    {"id":"DATA-05","track":"data_sql"},
+    {"id":"DEVOPS-01","track":"devops_ci"},
+    {"id":"DEVOPS-02","track":"devops_ci"},
+    {"id":"DEVOPS-03","track":"devops_ci"},
+    {"id":"DEVOPS-04","track":"devops_ci"},
+    {"id":"CLOUD-01","track":"cloud_iac"},
+    {"id":"CLOUD-02","track":"cloud_iac"},
+    {"id":"CLOUD-03","track":"cloud_iac"},
+    {"id":"SRE-01","track":"sre_troubleshooting"},
+    {"id":"SRE-02","track":"sre_troubleshooting"},
+    {"id":"SRE-03","track":"sre_troubleshooting"},
+    {"id":"SEC-01","track":"security"},
+    {"id":"SEC-02","track":"security"},
+    {"id":"SEC-03","track":"security"}
+  ],
+  "repeat_subset": [
+    "BUG-03",
+    "FEAT-02",
+    "API-04",
+    "UI-03",
+    "FULL-02",
+    "DATA-04",
+    "DEVOPS-03",
+    "CLOUD-02",
+    "SRE-02",
+    "SEC-02"
+  ],
+  "attempt_policy": {
+    "all_tasks": [1],
+    "repeat_subset_additional_attempts": [2, 3]
+  },
+  "routes": [
+    {"provider":"openai-codex","requested_model":"gpt-5.6-sol","visible_alias":"Sol standard","underlying_model":"GPT-5.6 Sol","safeguard_profile":"standard"},
+    {"provider":"openai-codex","requested_model":"gpt-daybreak-blue-latest","visible_alias":"Daybreak Blue","underlying_model":"GPT-5.6 Sol","safeguard_profile":"Daybreak Blue"},
+    {"provider":"openai-codex","requested_model":"gpt-5.6-terra","visible_alias":"Terra","underlying_model":"GPT-5.6 Terra","safeguard_profile":"standard"},
+    {"provider":"openai-codex","requested_model":"gpt-5.6-luna","visible_alias":"Luna","underlying_model":"GPT-5.6 Luna","safeguard_profile":"standard"},
+    {"provider":"opencode-go","requested_model":"deepseek-v4-flash","visible_alias":"DeepSeek V4 Flash","underlying_model":"DeepSeek V4 Flash","safeguard_profile":"provider default"},
+    {"provider":"opencode-go","requested_model":"deepseek-v4-pro","visible_alias":"DeepSeek V4 Pro","underlying_model":"DeepSeek V4 Pro","safeguard_profile":"provider default"}
+  ],
+  "run_count": {
+    "primary": 240,
+    "repeat_additional": 120,
+    "total": 360
+  },
+  "execution": {
+    "reasoning":"high",
+    "toolsets":"terminal,file",
+    "wall_timeout_seconds":1800,
+    "grader_timeout_seconds":300,
+    "max_turns":90,
+    "timezone":"UTC",
+    "locale":"C.UTF-8",
+    "fallback_providers":false,
+    "agent_tool_network":"disabled",
+    "model_api_egress":"Hermes host process only",
+    "grader_network":"external egress disabled; isolated loopback enabled for local HTTP tests"
+  },
+  "randomization": {
+    "algorithm":"Python random.Random(seed).shuffle over task-attempt-route tuples",
+    "seed":"hermes-engineering-benchmark-2026-08-13-v1"
+  },
+  "publication_policy": {
+    "active_hidden_graders":"private until all counted runs are sealed",
+    "pre_campaign_public_proof":"task, harness, grader hashes, validation summaries",
+    "post_campaign_release":"graders, raw results, immutable checksums, report, charts"
+  },
+  "pilot_policy":"The 2026-08-13 pilot is harness evidence only and excluded from this leaderboard."
+}

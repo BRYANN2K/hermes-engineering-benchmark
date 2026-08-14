@@ -1,0 +1,4 @@
+<!doctype html><html><head><link rel="stylesheet" href="styles.css"></head><body>
+<div role="tablist"><button role="tab" id="overview">Overview</button><button role="tab" id="activity">Activity</button><button role="tab" id="billing">Billing</button></div>
+<section role="tabpanel">Overview panel</section><section role="tabpanel">Activity panel</section><section role="tabpanel">Billing panel</section>
+<script type="module">import {createRovingTabs} from './app.mjs'; createRovingTabs([...document.querySelectorAll('[role=tab]')],[...document.querySelectorAll('[role=tabpanel]')]);</script></body></html>

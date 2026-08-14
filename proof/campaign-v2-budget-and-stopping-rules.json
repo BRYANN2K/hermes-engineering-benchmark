@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "campaign-20260813-v2",
+  "basis": "Five-route API-01 pilot extrapolated linearly to 360 runs; Daybreak uses the observed Sol pilot cost only as a planning proxy.",
+  "estimated_api_equivalent_cost_usd": 56.83,
+  "interpretation": "Planning estimate only, not actual billed cost.",
+  "billing_status_policy": {
+    "openai_codex": "Record provider-reported included status; do not relabel API-equivalent cost as billed.",
+    "opencode_go": "Record provider-reported unknown status unless an authoritative billed value becomes available."
+  },
+  "stopping_rules": [
+    "Do not change any frozen source, starter, grader, route, pricing snapshot, seed, timeout, reasoning level, or toolset after the first eligible v2 run starts.",
+    "Provider and grader failures remain outcomes; do not selectively rerun completed sealed artifacts.",
+    "Resume is allowed only for an incomplete run with exactly matching frozen inputs and the same run key.",
+    "Abort the campaign if freeze or grader commitments fail verification, tool sandbox activation is absent, or sealed-artifact integrity fails."
+  ]
+}

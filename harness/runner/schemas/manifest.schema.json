@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/hermes-engineering-bench/manifest.schema.json",
+  "title": "Hermes benchmark immutable run manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "created_at",
+    "task",
+    "hermes",
+    "limits",
+    "environment",
+    "grader",
+    "git_evidence",
+    "pricing"
+  ],
+  "properties": {
+    "$schema": {"type": "string"},
+    "schema_version": {"const": "1.0"},
+    "run_id": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string"},
+    "task": {
+      "type": "object",
+      "required": ["task_id", "attempt", "prompt_sha256", "starter_sha256", "starter_git"],
+      "properties": {
+        "task_id": {"type": "string", "minLength": 1},
+        "attempt": {"type": "integer", "minimum": 1},
+        "prompt_sha256": {"$ref": "#/$defs/sha256"},
+        "starter_sha256": {"$ref": "#/$defs/sha256"},
+        "starter_git": {
+          "type": "object",
+          "required": ["head", "tree", "is_dirty"],
+          "properties": {
+            "head": {"type": ["string", "null"]},
+            "tree": {"type": ["string", "null"]},
+            "is_dirty": {"type": "boolean"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "hermes": {
+      "type": "object",
+      "required": ["executable", "provider", "model", "reasoning", "toolsets", "safe_mode", "command"],
+      "properties": {
+        "executable": {"type": "string"},
+        "provider": {"enum": ["openai-codex", "opencode-go"]},
+        "model": {
+          "enum": [
+            "gpt-5.6-sol",
+            "gpt-daybreak-blue-latest",
+            "gpt-5.6-terra",
+            "gpt-5.6-luna",
+            "deepseek-v4-flash",
+            "deepseek-v4-pro"
+          ]
+        },
+        "reasoning": {"type": "string"},
+        "toolsets": {"type": "string"},
+        "safe_mode": {"const": true},
+        "command": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+      },
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "object",
+      "required": ["wall_seconds", "grader_wall_seconds", "max_turns"],
+      "properties": {
+        "wall_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "grader_wall_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "max_turns": {"const": 90}
+      },
+      "additionalProperties": false
+    },
+    "environment": {
+      "type": "object",
+      "required": ["HERMES_HOME", "HERMES_MAX_ITERATIONS", "TZ", "LC_ALL", "agent_tool_sandbox", "grader_sandbox"],
+      "properties": {
+        "HERMES_HOME": {"const": "/opt/data"},
+        "HERMES_MAX_ITERATIONS": {"const": "90"},
+        "TZ": {"const": "UTC"},
+        "LC_ALL": {"type": "string"},
+        "agent_tool_sandbox": {
+          "type": "object",
+          "required": ["enabled", "hook_sha256", "sandbox_run_sha256", "landlock_helper_sha256", "network_policy"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "hook_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+            "sandbox_run_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+            "landlock_helper_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+            "network_policy": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "grader_sandbox": {
+          "type": "object",
+          "required": ["enabled", "network_policy", "workspace_policy"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "network_policy": {"type": "string"},
+            "workspace_policy": {"type": "string"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "grader": {
+      "type": "object",
+      "required": ["executable", "sha256", "arguments", "interface"],
+      "properties": {
+        "executable": {"type": "string"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "arguments": {"type": "array", "items": {"type": "string"}},
+        "interface": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "git_evidence": {"type": "object"},
+    "pricing": {
+      "type": "object",
+      "required": ["normalized_api_cost_usd", "price_snapshot_id", "status"],
+      "properties": {
+        "normalized_api_cost_usd": {"type": "null"},
+        "price_snapshot_id": {"type": "null"},
+        "status": {"const": "not_configured"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,207 @@
+{
+  "algorithm": "sha256(path + NUL + bytes, paths sorted)",
+  "commitments": [
+    {
+      "files": 5,
+      "sha256": "bd1fb506fe22d27848c34e4ef3518475f8a0b3e24f4a55ecf856c22f95c94132",
+      "task_id": "BUG-01"
+    },
+    {
+      "files": 5,
+      "sha256": "5d6b44329aae3df7b9873bf7680b5c7e5df1ac8e9a5d4a8a65d8649b02d19ed6",
+      "task_id": "BUG-02"
+    },
+    {
+      "files": 5,
+      "sha256": "8a7ebeae9d37a0a6a6bedf9c279f5d2b411dba0583e51c4f1c027d5a77846477",
+      "task_id": "BUG-03"
+    },
+    {
+      "files": 5,
+      "sha256": "0a72416836c92f7e70edbc32af63c21375b2dba8df184de12d246b063264272a",
+      "task_id": "BUG-04"
+    },
+    {
+      "files": 5,
+      "sha256": "52489df60f4d639c5048978d72e3dca64268e6c22fd8f085242d26a97375c866",
+      "task_id": "BUG-05"
+    },
+    {
+      "files": 5,
+      "sha256": "455812f36d6561bc176be1372d62049e6e8f8a37fa2414bd771069a42f9b9b8e",
+      "task_id": "FEAT-01"
+    },
+    {
+      "files": 5,
+      "sha256": "90eed68be5a696e9d6f5dcfaa1e2e9b0ff1c223514b43834e18170b00bbf7af8",
+      "task_id": "FEAT-02"
+    },
+    {
+      "files": 5,
+      "sha256": "2927805cba911ae80920924f6fcbdf68721109752db370a71ab27150a870b3c7",
+      "task_id": "FEAT-03"
+    },
+    {
+      "files": 5,
+      "sha256": "fe49049ff196ef61b40043b11262aab9c4886da43fbd15ac2873a58175a69a15",
+      "task_id": "FEAT-04"
+    },
+    {
+      "files": 5,
+      "sha256": "2a15e65d8b400a5b52662279ece6468b7c775443743c02cc89354f30c9e6c8a5",
+      "task_id": "API-01"
+    },
+    {
+      "files": 5,
+      "sha256": "b4b32f63c680d184ea3f1ff83dc4de1f62bd4161a0d865f9b3d2f5ccade5712e",
+      "task_id": "API-02"
+    },
+    {
+      "files": 5,
+      "sha256": "ed8d89a9bc6699ca38095963a503cc85a8eeac677909a4c277227ab44db25c80",
+      "task_id": "API-03"
+    },
+    {
+      "files": 5,
+      "sha256": "c1ea1d61ed879895b0b5d942aaec5b829ce9fb17de4486b5ae4f99559b4a3be1",
+      "task_id": "API-04"
+    },
+    {
+      "files": 5,
+      "sha256": "459e9601796d60bbfd0d68d0525b58dba2ecf698537d8037228e3eb10d7d3b6c",
+      "task_id": "API-05"
+    },
+    {
+      "files": 5,
+      "sha256": "43b2af69597ab26aede0c165d5bf48193778ff80276286106efe323c549ca1a0",
+      "task_id": "UI-01"
+    },
+    {
+      "files": 5,
+      "sha256": "c23cc95fcecfc53af9f2cfc5e4597e2b1a391b3b5b54e03ff2b70840d9bfdf74",
+      "task_id": "UI-02"
+    },
+    {
+      "files": 5,
+      "sha256": "a75e8c1d98539455bd0ca89e39ed09bf7e74695e3d00d50d6596b7ce23999ece",
+      "task_id": "UI-03"
+    },
+    {
+      "files": 5,
+      "sha256": "901b33d69ceb016b72935f289f0656241e95942a39ed6b4dbed9b1242468155f",
+      "task_id": "UI-04"
+    },
+    {
+      "files": 5,
+      "sha256": "09bffdf7f48845d8ec0ca249b39e30e9473020e51e2c9d4dfdf2f60372c9a557",
+      "task_id": "UI-05"
+    },
+    {
+      "files": 5,
+      "sha256": "48d9a99be5e3fcd061451af8fb9120218845d37b7f60cb0441c16daae3a603c4",
+      "task_id": "FULL-01"
+    },
+    {
+      "files": 5,
+      "sha256": "2e07c8cd01dfeef65328d0fead9dd759566c5027b0b8e42ac95760c3f46a6b47",
+      "task_id": "FULL-02"
+    },
+    {
+      "files": 5,
+      "sha256": "321a76aed9a43b7f660318a8ba93c7ca7c8f79bc33e3710773b4b45ebd8ffa90",
+      "task_id": "FULL-03"
+    },
+    {
+      "files": 5,
+      "sha256": "5308ee9a2d43b05100973199c191c8946d3c92d69a79c859ef935a6e8ddfb2dd",
+      "task_id": "DATA-01"
+    },
+    {
+      "files": 5,
+      "sha256": "bcc3390ff4a3a5ea83d0d008e8d06fe46a9c0ce29a688484d1abc99b543438fb",
+      "task_id": "DATA-02"
+    },
+    {
+      "files": 5,
+      "sha256": "2dc5ed3b61fc28ee057d75b18fdbcd0be162de8b2411915c9dd57d472457e44e",
+      "task_id": "DATA-03"
+    },
+    {
+      "files": 5,
+      "sha256": "8f12df5f0093160dab4d33841dfb6433d5f875683767538ed150975b15f6db16",
+      "task_id": "DATA-04"
+    },
+    {
+      "files": 5,
+      "sha256": "3cf388098735349e2778d7657765430597b15179cfd79ceb61cb4f66b9a078eb",
+      "task_id": "DATA-05"
+    },
+    {
+      "files": 9,
+      "sha256": "2ed5a330b0ec35d4a6522a7f01c2527617cc0157c726f19528c76022cfadef7c",
+      "task_id": "DEVOPS-01"
+    },
+    {
+      "files": 9,
+      "sha256": "4a9df0879a3796246405dfb1d1920f0a0ee4801848684a50c32e4f571b252572",
+      "task_id": "DEVOPS-02"
+    },
+    {
+      "files": 9,
+      "sha256": "b6dab8792aa53e4d67aaf853f544cb07f47dd579a782ff5de7350d1ae8fa37eb",
+      "task_id": "DEVOPS-03"
+    },
+    {
+      "files": 9,
+      "sha256": "728f505095fbfc4366862ddb6985d2529a1afe4fd41825fd2114328535c40509",
+      "task_id": "DEVOPS-04"
+    },
+    {
+      "files": 9,
+      "sha256": "8450eca1c9c0b7718199ce8d5dc4615212d05af7a6b57c2ab7165ca8e0a5cfd1",
+      "task_id": "CLOUD-01"
+    },
+    {
+      "files": 9,
+      "sha256": "45917876aefce21906fe36478f8de02394166eef476a75630514152f6cddaf3c",
+      "task_id": "CLOUD-02"
+    },
+    {
+      "files": 9,
+      "sha256": "a789b0177a5d7d2f997970b4836aac6ba8f5411ef93d839085abd3c90d997b13",
+      "task_id": "CLOUD-03"
+    },
+    {
+      "files": 9,
+      "sha256": "493ebd547a9021c33e6fafa941dc4acf7edbb1d0f9a97ce8511984a01a5a54b2",
+      "task_id": "SRE-01"
+    },
+    {
+      "files": 9,
+      "sha256": "9aa3e6947933b516c5367fc60e910fee008a73d6270c484618a4f5c1e2718807",
+      "task_id": "SRE-02"
+    },
+    {
+      "files": 9,
+      "sha256": "33b446a0f01faf438722fe2223a436e5988fc2d0e07bf41ffae33d4ecd165075",
+      "task_id": "SRE-03"
+    },
+    {
+      "files": 9,
+      "sha256": "60f0c26f65d001b47b579a821ad5d4b531400a3f4a46043493c23f503f2c5539",
+      "task_id": "SEC-01"
+    },
+    {
+      "files": 9,
+      "sha256": "fa852d92e9c4dbf7199aca0de2a9a11896dddc71644e60f0506e33a95b9b82b7",
+      "task_id": "SEC-02"
+    },
+    {
+      "files": 9,
+      "sha256": "a493ec9b4ebfb037da0b3debe9329e79f0d440f99ece7f56696265b8e87c6aa8",
+      "task_id": "SEC-03"
+    }
+  ],
+  "schema_version": "1.0",
+  "task_count": 40
+}

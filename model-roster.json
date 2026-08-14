@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.1",
+  "captured_at": "2026-08-13T22:00:00+00:00",
+  "matrix_status": "available",
+  "routes": 6,
+  "unique_underlying_models": 5,
+  "models": [
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.6-sol",
+      "display_name": "GPT-5.6 Sol",
+      "status": "available",
+      "safeguard_profile": "standard",
+      "probe": {
+        "requested_model": "gpt-5.6-sol",
+        "completed": true,
+        "cost_status": "included"
+      }
+    },
+    {
+      "provider": "openai-codex",
+      "model": "gpt-daybreak-blue-latest",
+      "program": "Daybreak",
+      "display_name": "Daybreak Blue",
+      "default_snapshot": "gpt-5.6-sol",
+      "status": "available",
+      "safeguard_profile": "calibrated for authorized defensive cybersecurity work with reduced refusals",
+      "access": "separate approval and provisioning tied to identity, workspace or API organization/project, model, and product surface",
+      "probe": {
+        "requested_model": "gpt-daybreak-blue-latest",
+        "completed": true,
+        "response": "GPT_DAYBREAK_BLUE_OK",
+        "provider": "openai-codex",
+        "api_calls": 1,
+        "cost_status": "included"
+      },
+      "slug_note": "The accepted Codex slug is gpt-daybreak-blue-latest. The shorter daybreak-blue-latest slug is rejected by this surface."
+    },
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.6-terra",
+      "status": "available"
+    },
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.6-luna",
+      "status": "available"
+    },
+    {
+      "provider": "opencode-go",
+      "model": "deepseek-v4-flash",
+      "status": "available"
+    },
+    {
+      "provider": "opencode-go",
+      "model": "deepseek-v4-pro",
+      "status": "available"
+    }
+  ],
+  "comparison_policy": {
+    "daybreak_blue": {
+      "current_underlying_model": "gpt-5.6-sol",
+      "matrix_action": "benchmark as a distinct route/configuration from standard Sol because its access and safeguard profile differ",
+      "interpretation": "same default base snapshot, different authorized product route; not a sixth unique set of model weights"
+    }
+  },
+  "campaign_projection": {
+    "routes": 6,
+    "unique_underlying_models": 5,
+    "main_tasks": 40,
+    "main_runs": 240,
+    "hard_tasks": 10,
+    "additional_attempts_per_hard_task_and_route": 2,
+    "additional_runs": 120,
+    "total_runs": 360,
+    "status": "conditional_on_full_task_and_grader_freeze"
+  },
+  "historical_pilot": {
+    "routes_run": 5,
+    "standard_sol_run": true,
+    "daybreak_blue_route_run": false,
+    "note": "The sealed pilot exercised standard gpt-5.6-sol, not the separately provisioned gpt-daybreak-blue-latest route. It must not be relabelled as Daybreak Blue."
+  },
+  "official_sources": [
+    "https://developers.openai.com/api/docs/models/daybreak-blue-latest",
+    "https://learn.chatgpt.com/docs/cyber-safety"
+  ]
+}

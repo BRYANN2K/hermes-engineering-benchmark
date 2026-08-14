@@ -1,0 +1,16 @@
+{
+  "checks": {
+    "content_has_payload": true,
+    "content_has_terminal": true,
+    "network_rc": 1,
+    "outside_rc": 1,
+    "state_output": "kept",
+    "terminal_rc": 0,
+    "write_error": null
+  },
+  "passed": true,
+  "returncode": 0,
+  "stderr": "",
+  "trace_lines": 14,
+  "trace_markers_valid": true
+}

@@ -1,0 +1,13 @@
+test_fixed_run_key_refuses_overwrite_and_resume_reuses_complete_run (test_runner.RunnerExecutionTests.test_fixed_run_key_refuses_overwrite_and_resume_reuses_complete_run) ... ok
+test_matrix_mock_runs_all_models_in_parallel_with_unique_artifacts (test_runner.RunnerExecutionTests.test_matrix_mock_runs_all_models_in_parallel_with_unique_artifacts) ... ok
+test_rejected_candidate_is_a_completed_grade (test_runner.RunnerExecutionTests.test_rejected_candidate_is_a_completed_grade) ... ok
+test_relative_grader_path_executes_from_run_directory (test_runner.RunnerExecutionTests.test_relative_grader_path_executes_from_run_directory) ... ok
+test_resume_incomplete_run_rejects_changed_inputs (test_runner.RunnerExecutionTests.test_resume_incomplete_run_rejects_changed_inputs) ... ok
+test_run_captures_complete_immutable_artifact (test_runner.RunnerExecutionTests.test_run_captures_complete_immutable_artifact) ... ok
+test_timeout_kills_the_process_group_and_still_runs_grader (test_runner.RunnerExecutionTests.test_timeout_kills_the_process_group_and_still_runs_grader) ... ok
+test_matrix_dry_run_uses_the_frozen_six_route_matrix (test_runner.RunnerPlanTests.test_matrix_dry_run_uses_the_frozen_six_route_matrix) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 11.998s
+
+OK

@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "campaign-20260813-v1",
+  "eligible": false,
+  "artifacts_preserved": true,
+  "reason": "A verification script was added after the v1 source freeze. The driver was interrupted immediately and all three created run directories lacked COMPLETE markers.",
+  "runs_created": [
+    {
+      "run_key": "campaign-20260813-v1__API-04__a2__openai-codex__gpt-5.6-sol",
+      "complete_marker": false
+    },
+    {
+      "run_key": "campaign-20260813-v1__API-04__a3__opencode-go__deepseek-v4-flash",
+      "complete_marker": false
+    },
+    {
+      "run_key": "campaign-20260813-v1__BUG-05__a1__opencode-go__deepseek-v4-pro",
+      "complete_marker": false
+    }
+  ],
+  "leaderboard_policy": "No v1 artifact may be aggregated, resumed, or relabelled as a v2 run."
+}

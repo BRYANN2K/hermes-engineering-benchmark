@@ -1,0 +1,66 @@
+{
+  "snapshot_id": "official-pricing-2026-08-13",
+  "captured_at": "2026-08-13",
+  "currency": "USD",
+  "unit": "per_1m_tokens",
+  "reasoning_accounting": "reasoning_tokens are reported as a subset of output_tokens and are not added again",
+  "models": {
+    "gpt-5.6-sol": {
+      "input": "5.00",
+      "cached_input": "0.50",
+      "cache_write": "6.25",
+      "output": "30.00",
+      "context_band": "short",
+      "source": "https://developers.openai.com/api/docs/pricing"
+    },
+    "gpt-daybreak-blue-latest": {
+      "program": "Daybreak",
+      "default_snapshot": "gpt-5.6-sol",
+      "input": "5.00",
+      "cached_input": "0.50",
+      "cache_write": "6.25",
+      "output": "30.00",
+      "context_band": "short",
+      "access": "separate approval and provisioning for authorized defensive cybersecurity work",
+      "source": "https://developers.openai.com/api/docs/models/daybreak-blue-latest"
+    },
+    "gpt-5.6-terra": {
+      "input": "2.00",
+      "cached_input": "0.20",
+      "cache_write": "2.50",
+      "output": "12.00",
+      "context_band": "short",
+      "source": "https://developers.openai.com/api/docs/pricing"
+    },
+    "gpt-5.6-luna": {
+      "input": "0.20",
+      "cached_input": "0.02",
+      "cache_write": "0.25",
+      "output": "1.20",
+      "context_band": "short",
+      "source": "https://developers.openai.com/api/docs/pricing"
+    },
+
+    "deepseek-v4-flash": {
+      "public_version": "DeepSeek-V4-Flash-0731",
+      "input": "0.14",
+      "cached_input": "0.0028",
+      "cache_write": null,
+      "output": "0.28",
+      "source": "https://api-docs.deepseek.com/quick_start/pricing"
+    },
+    "deepseek-v4-pro": {
+      "public_version": "DeepSeek-V4-Pro-0813",
+      "input": "0.435",
+      "cached_input": "0.003625",
+      "cache_write": null,
+      "output": "0.87",
+      "source": "https://api-docs.deepseek.com/quick_start/pricing"
+    }
+  },
+  "notes": [
+    "gpt-daybreak-blue-latest currently uses gpt-5.6-sol as its default snapshot but has separately calibrated cyber safeguards; it is reported as a distinct route, not a distinct base snapshot.",
+    "DeepSeek's announced peak/off-peak replacement pricing starts on 2026-08-16, after this 2026-08-13 pilot, so the currently effective flat rates are used.",
+    "Hermes' local usage_pricing.py snapshot is stale for gpt-5.6-terra and gpt-5.6-luna; this benchmark uses the live official page instead."
+  ]
+}

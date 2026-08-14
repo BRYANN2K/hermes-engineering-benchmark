@@ -1,0 +1,10 @@
+import sys
+from http.server import ThreadingHTTPServer,BaseHTTPRequestHandler
+def make_server(db_path,port=0):
+ class H(BaseHTTPRequestHandler):
+  def do_GET(self):self.send_error(501)
+  def do_POST(self):self.send_error(501)
+  def do_PATCH(self):self.send_error(501)
+  def log_message(self,*a):pass
+ return ThreadingHTTPServer(('127.0.0.1',port),H)
+if __name__=='__main__':make_server(sys.argv[1],int(sys.argv[2]) if len(sys.argv)>2 else 8000).serve_forever()

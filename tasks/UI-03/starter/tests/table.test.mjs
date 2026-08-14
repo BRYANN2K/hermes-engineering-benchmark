@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {buildTableModel} from '../table.mjs';const rows=[{name:'Zoe',email:'z@x',plan:'Pro',lastSeen:null},{name:'amy',email:'a@x',plan:'Free',lastSeen:'2026-01-01'},{name:'Bob',email:'b@x',plan:'Pro',lastSeen:'2026-02-01'}];
+test('filters and sorts',()=>{const m=buildTableModel(rows,{query:'@x',sortKey:'name'});assert.deepEqual(m.rows.map(x=>x.name),['amy','Bob','Zoe']);assert.equal(m.summary,'Showing 1–3 of 3');});
+test('paginates',()=>{const m=buildTableModel(rows,{page:2,pageSize:2});assert.equal(m.page,2);assert.equal(m.rows.length,1);assert.equal(m.totalPages,2);assert.equal(m.summary,'Showing 3–3 of 3');});
