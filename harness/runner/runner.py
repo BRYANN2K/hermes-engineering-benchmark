@@ -32,8 +32,15 @@ MODELS = (
 )
 DEFAULT_HERMES = Path("/opt/hermes/bin/hermes")
 REQUIRED_HERMES_HOME = Path("/opt/data")
+REQUIRED_SHARED_AUTH_FILE = REQUIRED_HERMES_HOME / "auth.json"
+REQUIRED_SHARED_ENV_FILE = REQUIRED_HERMES_HOME / ".env"
 CANDIDATE_ROOT = Path(__file__).resolve().parent
 REPOSITORY_ROOT = CANDIDATE_ROOT.parents[1]
+HERMES_RUNTIME_MANIFEST = REPOSITORY_ROOT / "runtime" / "hermes-runtime-manifest.json"
+HERMES_RUNTIME_VERIFIER = REPOSITORY_ROOT / "scripts" / "verify_hermes_runtime.py"
+SOURCE_FREEZE_MANIFEST = REPOSITORY_ROOT / "freeze-manifest.json"
+SOURCE_FREEZE_VERIFIER = REPOSITORY_ROOT / "scripts" / "freeze.py"
+LANDLOCK_HELPER_HASH_FILE = REPOSITORY_ROOT / "runtime" / "sandbox" / "landlock-run.sha256"
 SCHEMA_SOURCE = CANDIDATE_ROOT / "schemas"
 DEFAULT_RUNS_ROOT = CANDIDATE_ROOT / "runs"
 DEFAULT_TOOL_SANDBOX_HOOK = REPOSITORY_ROOT / "runtime" / "hermes_tool_sandbox"
@@ -156,6 +163,7 @@ def benchmark_environment(
     *,
     enable_tool_sandbox: bool,
     sandbox_trace: Path | None = None,
+    provider: str | None = None,
 ) -> dict[str, str]:
     environment = os.environ.copy()
     # The one-shot agent authenticates through HERMES_HOME. Unrelated gateway,
@@ -167,7 +175,7 @@ def benchmark_environment(
             environment.pop(key, None)
     environment.update(
         {
-            "HERMES_HOME": str(REQUIRED_HERMES_HOME),
+            "HERMES_HOME": str(args.ephemeral_hermes_home),
             "HERMES_MAX_ITERATIONS": str(args.max_turns),
             "HERMES_WRITE_SAFE_ROOT": str(args.active_workspace),
             "TERMINAL_CWD": str(args.active_workspace),
@@ -183,7 +191,7 @@ def benchmark_environment(
     # and it is enabled exclusively for the Hermes process (never the grader).
     environment.pop("PYTHONPATH", None)
     environment.pop("PYTHONHOME", None)
-    for key in ("HEB_TOOL_SANDBOX", "HEB_SANDBOX_RUN", "HEB_SANDBOX_TRACE"):
+    for key in ("HEB_TOOL_SANDBOX", "HEB_SANDBOX_RUN", "HEB_SANDBOX_TRACE", "HEB_SHARED_AUTH_FILE"):
         environment.pop(key, None)
     if enable_tool_sandbox:
         if sandbox_trace is None:
@@ -194,9 +202,34 @@ def benchmark_environment(
                 "HEB_TOOL_SANDBOX": "1",
                 "HEB_SANDBOX_RUN": str(args.sandbox_run.resolve()),
                 "HEB_SANDBOX_TRACE": str(sandbox_trace.resolve()),
+                "HEB_SHARED_AUTH_FILE": str(REQUIRED_SHARED_AUTH_FILE.resolve()),
             }
         )
+        if provider == "opencode-go":
+            key = read_dotenv_value(REQUIRED_SHARED_ENV_FILE, "OPENCODE_GO_API_KEY")
+            if not key:
+                raise ValueError("OpenCode Go credential is unavailable")
+            # Host process only. sandbox-run reconstructs a minimal env and
+            # HEB_SHARED_* vars are explicitly unset before every tool command.
+            environment["OPENCODE_GO_API_KEY"] = key
     return environment
+
+
+def read_dotenv_value(path: Path, key: str) -> str | None:
+    if not path.is_file():
+        return None
+    prefix = key + "="
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if line.startswith("export "):
+            line = line[7:].lstrip()
+        if not line.startswith(prefix):
+            continue
+        value = line[len(prefix):].strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+            value = value[1:-1]
+        return value or None
+    return None
 
 
 def execute_timed(
@@ -337,6 +370,7 @@ def grader_command(args: argparse.Namespace, grader_workspace: Path) -> list[str
 
 
 def grader_environment(args: argparse.Namespace) -> dict[str, str]:
+    args.ephemeral_hermes_home = args.active_workspace
     environment = benchmark_environment(args, enable_tool_sandbox=False)
     bundle = args.grader_bundle_root.resolve() if args.grader_bundle_root else args.grader.resolve().parent
     # Graders may invoke system runtimes such as Node and may bind a loopback
@@ -445,6 +479,17 @@ def make_run_id(args: argparse.Namespace, provider: str, model: str) -> str:
     )
 
 
+def source_freeze_identity(args: argparse.Namespace) -> dict[str, Any]:
+    if args.hermes.resolve() != DEFAULT_HERMES.resolve():
+        return {"status": "not_applicable_mock", "source_tree_sha256": None, "file_count": None}
+    payload = read_json(SOURCE_FREEZE_MANIFEST)
+    return {
+        "status": "verified",
+        "source_tree_sha256": payload["source_tree_sha256"],
+        "file_count": payload["file_count"],
+    }
+
+
 def request_record(args: argparse.Namespace, provider: str, model: str) -> dict[str, Any]:
     """Build the immutable input identity used to validate resume requests."""
     return {
@@ -476,6 +521,11 @@ def request_record(args: argparse.Namespace, provider: str, model: str) -> dict[
             else file_sha256(args.grader.resolve())
         ),
         "hermes_executable": str(args.hermes.resolve()),
+        "hermes_runtime_manifest_sha256": (
+            file_sha256(HERMES_RUNTIME_MANIFEST) if args.hermes.resolve() == DEFAULT_HERMES.resolve() else None
+        ),
+        "benchmark_source_tree_sha256": source_freeze_identity(args)["source_tree_sha256"],
+        "benchmark_source_file_count": source_freeze_identity(args)["file_count"],
         "grader_executable": str(args.grader.resolve()),
         "grader_arguments": args.grader_arg,
     }
@@ -590,11 +640,38 @@ def verify_sandbox_trace(path: Path, *, enabled: bool) -> bool:
         records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
     except (OSError, json.JSONDecodeError):
         return False
-    if not records or records[0] != {"sandbox": "hermes-tool-hook", "installed": True}:
+    if not records:
+        return False
+    first = records[0]
+    if (
+        first.get("sandbox") != "hermes-tool-hook"
+        or first.get("installed") is not True
+        or first.get("cognitive_isolation_installed") is not True
+        or first.get("ephemeral_home") is not True
+        or first.get("shared_credentials_host_only") is not True
+    ):
+        return False
+    cognitive = [record for record in records[1:] if record.get("sandbox") == "hermes-cognitive-isolation"]
+    if len(cognitive) != 1:
+        return False
+    applied = cognitive[0]
+    if (
+        applied.get("applied") is not True
+        or applied.get("skip_memory") is not True
+        or applied.get("skip_context_files") is not True
+        or applied.get("load_soul_identity") is not False
+        or applied.get("fallback_disabled") is not True
+    ):
         return False
     return all(
         record == {"sandbox": "landlock-seccomp-netns", "activated": True}
+        or (
+            record.get("sandbox") == "hermes-tool-hook"
+            and record.get("installed") is True
+            and record.get("cognitive_isolation_installed") is True
+        )
         for record in records[1:]
+        if record.get("sandbox") != "hermes-cognitive-isolation"
     )
 
 
@@ -631,6 +708,31 @@ def validate_common(args: argparse.Namespace, *, executing: bool) -> None:
     if executing:
         if not args.hermes.is_file() or not os.access(args.hermes, os.X_OK):
             raise ValueError(f"Hermes executable is not executable: {args.hermes}")
+        if args.hermes.resolve() == DEFAULT_HERMES.resolve():
+            source = subprocess.run(
+                [sys.executable, str(SOURCE_FREEZE_VERIFIER), "verify", "--manifest", str(SOURCE_FREEZE_MANIFEST)],
+                cwd=REPOSITORY_ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+                timeout=120,
+            )
+            if source.returncode != 0:
+                detail = (source.stdout + source.stderr).strip()
+                raise ValueError(f"benchmark source freeze verification failed: {detail}")
+            completed = subprocess.run(
+                [sys.executable, str(HERMES_RUNTIME_VERIFIER), "verify", "--manifest", str(HERMES_RUNTIME_MANIFEST)],
+                cwd=REPOSITORY_ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+                timeout=120,
+            )
+            if completed.returncode != 0:
+                detail = (completed.stdout + completed.stderr).strip()
+                raise ValueError(f"Hermes runtime verification failed: {detail}")
         if not args.grader.is_file() or not os.access(args.grader, os.X_OK):
             raise ValueError(f"grader is not executable: {args.grader}")
         if args.grader_bundle_root is not None and not args.grader_bundle_root.is_dir():
@@ -643,6 +745,15 @@ def validate_common(args: argparse.Namespace, *, executing: bool) -> None:
             helper = args.sandbox_run.parent / "landlock-run"
             if not helper.is_file() or not os.access(helper, os.X_OK):
                 raise ValueError(f"compiled sandbox helper is missing: {helper}; run scripts/build-sandbox")
+            if not LANDLOCK_HELPER_HASH_FILE.is_file():
+                raise ValueError("compiled sandbox helper hash is missing; run scripts/build-sandbox")
+            expected_helper_sha256 = LANDLOCK_HELPER_HASH_FILE.read_text(encoding="ascii").strip()
+            if not re.fullmatch(r"[0-9a-f]{64}", expected_helper_sha256):
+                raise ValueError("compiled sandbox helper hash is invalid")
+            if file_sha256(helper) != expected_helper_sha256:
+                raise ValueError("compiled sandbox helper does not match its frozen hash")
+            if not REQUIRED_SHARED_AUTH_FILE.is_file():
+                raise ValueError("shared Hermes credential store is unavailable")
         if args.grader_sandbox:
             if not args.sandbox_run.is_file() or not os.access(args.sandbox_run, os.X_OK):
                 raise ValueError(f"grader sandbox runner is not executable: {args.sandbox_run}")
@@ -670,6 +781,7 @@ def build_manifest(
         "schema_version": SCHEMA_VERSION,
         "run_id": run_id,
         "created_at": created_at,
+        "benchmark_freeze": source_freeze_identity(args),
         "task": {
             "task_id": args.task_id,
             "attempt": args.attempt,
@@ -679,6 +791,12 @@ def build_manifest(
         },
         "hermes": {
             "executable": str(args.hermes.resolve()),
+            "runtime_manifest_sha256": (
+                file_sha256(HERMES_RUNTIME_MANIFEST) if args.hermes.resolve() == DEFAULT_HERMES.resolve() else None
+            ),
+            "runtime_verification": (
+                "verified" if args.hermes.resolve() == DEFAULT_HERMES.resolve() else "not_applicable_mock"
+            ),
             "provider": provider,
             "model": model,
             "reasoning": args.reasoning,
@@ -692,7 +810,7 @@ def build_manifest(
             "max_turns": args.max_turns,
         },
         "environment": {
-            "HERMES_HOME": str(REQUIRED_HERMES_HOME),
+            "HERMES_HOME": "ephemeral-per-run",
             "HERMES_MAX_ITERATIONS": str(args.max_turns),
             "TZ": "UTC",
             "LC_ALL": "C.UTF-8",
@@ -702,6 +820,8 @@ def build_manifest(
                 "sandbox_run_sha256": file_sha256(args.sandbox_run) if args.tool_sandbox else None,
                 "landlock_helper_sha256": file_sha256(args.sandbox_run.parent / "landlock-run") if args.tool_sandbox else None,
                 "network_policy": "agent tools have no sockets; Hermes host process retains model API egress",
+                "cognitive_isolation": "skip_memory + skip_context_files + no soul identity + no fallback",
+                "credential_policy": "shared host-only auth store; path withheld from tools and artifacts",
             },
             "grader_sandbox": {
                 "enabled": args.grader_sandbox,
@@ -756,6 +876,8 @@ def run_one(args: argparse.Namespace, provider: str, model: str) -> dict[str, An
         created_at = utc_now()
         workspace = run_dir / "workspace"
         args.active_workspace = workspace.resolve()
+        ephemeral_home = run_dir / ".hermes-home"
+        args.ephemeral_hermes_home = ephemeral_home.resolve()
         state_path = run_dir / "state.json"
         if not workspace.exists():
             prepare_starter_workspace(args.starter.resolve(), workspace)
@@ -780,18 +902,25 @@ def run_one(args: argparse.Namespace, provider: str, model: str) -> dict[str, An
         exit_status = read_json(exit_status_path) if exit_status_path.is_file() else {}
         timings = read_json(timing_path) if timing_path.is_file() else {}
         if "hermes" not in exit_status:
-            hermes_status, hermes_timing = execute_timed(
-                command,
-                cwd=workspace,
-                env=benchmark_environment(
-                    args,
-                    enable_tool_sandbox=args.tool_sandbox,
-                    sandbox_trace=sandbox_trace_path,
-                ),
-                stdout_path=stdout_path,
-                stderr_path=stderr_path,
-                timeout_seconds=args.timeout,
-            )
+            ephemeral_home.mkdir(mode=0o700)
+            try:
+                hermes_status, hermes_timing = execute_timed(
+                    command,
+                    cwd=workspace,
+                    env=benchmark_environment(
+                        args,
+                        enable_tool_sandbox=args.tool_sandbox,
+                        sandbox_trace=sandbox_trace_path,
+                        provider=provider,
+                    ),
+                    stdout_path=stdout_path,
+                    stderr_path=stderr_path,
+                    timeout_seconds=args.timeout,
+                )
+            finally:
+                shutil.rmtree(ephemeral_home, ignore_errors=True)
+            if ephemeral_home.exists():
+                raise RuntimeError("ephemeral Hermes home survived agent execution")
             exit_status["hermes"] = hermes_status
             timings["hermes"] = hermes_timing
             ensure_usage_file(usage_path, hermes_status)
@@ -921,7 +1050,7 @@ def planned_run(args: argparse.Namespace, provider: str, model: str, run_key: st
         "timeout_seconds": args.timeout,
         "grader_timeout_seconds": args.grader_timeout,
         "max_turns": args.max_turns,
-        "HERMES_HOME": str(REQUIRED_HERMES_HOME),
+        "HERMES_HOME": "ephemeral-per-run",
         "prompt_sha256": file_sha256(args.prompt_file),
         "command": hermes_command(args, provider, model, placeholder),
         "run_key": run_key,

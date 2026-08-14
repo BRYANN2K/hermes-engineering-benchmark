@@ -8,7 +8,7 @@ export PATH
 # The current command is already confined by this script; recursive injection
 # would couple it to host paths and could fail after the run is archived.
 heb_sandbox_trace=${HEB_SANDBOX_TRACE-}
-unset PYTHONPATH PYTHONHOME HEB_TOOL_SANDBOX HEB_SANDBOX_RUN HEB_SANDBOX_TRACE
+unset PYTHONPATH PYTHONHOME HEB_TOOL_SANDBOX HEB_SANDBOX_RUN HEB_SANDBOX_TRACE HEB_SHARED_AUTH_FILE
 
 die() {
     printf 'sandbox-run: %s\n' "$*" >&2
@@ -20,6 +20,14 @@ die() {
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 runner="$script_dir/landlock-run"
 [ -x "$runner" ] || die "missing compiled helper: $runner"
+runner_hash_file="$script_dir/landlock-run.sha256"
+[ -f "$runner_hash_file" ] || die "missing compiled-helper hash: $runner_hash_file"
+IFS= read -r expected_runner_hash < "$runner_hash_file"
+[ "${#expected_runner_hash}" -eq 64 ] || die "invalid compiled-helper hash length"
+case $expected_runner_hash in *[!0-9a-f]*) die "invalid compiled-helper hash encoding" ;; esac
+observed_runner_hash=$(/usr/bin/sha256sum "$runner")
+observed_runner_hash=${observed_runner_hash%% *}
+[ "$observed_runner_hash" = "$expected_runner_hash" ] || die "compiled-helper hash mismatch"
 
 workspace=$1
 shift

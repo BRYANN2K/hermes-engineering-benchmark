@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,14 +12,17 @@ ROOT = Path(__file__).resolve().parents[1]
 def digest_tree(root: Path) -> tuple[str, int]:
     digest = hashlib.sha256()
     count = 0
-    for path in sorted(item for item in root.rglob("*") if item.is_file()):
-        if "__pycache__" in path.parts or path.suffix == ".pyc":
-            continue
-        relative = path.relative_to(root).as_posix()
-        digest.update(relative.encode("utf-8"))
-        digest.update(b"\0")
-        digest.update(path.read_bytes())
-        count += 1
+    for path in sorted(root.rglob("*"), key=lambda item: item.relative_to(root).as_posix()):
+        encoded = path.relative_to(root).as_posix().encode("utf-8", "surrogateescape")
+        if path.is_symlink():
+            digest.update(b"L\0" + encoded + b"\0" + os.fsencode(os.readlink(path)) + b"\0")
+        elif path.is_dir():
+            digest.update(b"D\0" + encoded + b"\0")
+        elif path.is_file():
+            digest.update(b"F\0" + encoded + b"\0")
+            digest.update(path.read_bytes())
+            digest.update(b"\0")
+            count += 1
     return digest.hexdigest(), count
 
 
@@ -31,7 +35,7 @@ def current() -> dict:
         commitments.append({"task_id": task_id, "sha256": sha256, "files": files})
     return {
         "schema_version": "1.0",
-        "algorithm": "sha256(path + NUL + bytes, paths sorted)",
+        "algorithm": "runner tree_sha256: typed D/F/L entries with sorted relative paths and file bytes",
         "task_count": len(commitments),
         "commitments": commitments,
     }

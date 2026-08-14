@@ -10,6 +10,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INCLUDED = (
     "suite.json",
+    "campaign-policy.json",
+    "proof/grader-commitments.json",
     "tasks",
     "private_graders",
     "harness",

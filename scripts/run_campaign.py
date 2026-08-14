@@ -14,6 +14,9 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "harness" / "runner" / "runner.py"
 FREEZE = ROOT / "scripts" / "freeze.py"
+HERMES_RUNTIME = ROOT / "scripts" / "verify_hermes_runtime.py"
+CAMPAIGN_INTEGRITY = ROOT / "scripts" / "verify_campaign_integrity.py"
+GRADER_COMMITMENTS = ROOT / "scripts" / "commit_graders.py"
 
 
 def load_suite() -> dict[str, Any]:
@@ -61,7 +64,7 @@ def command(item: dict[str, Any], runs_root: Path, *, resume: bool) -> list[str]
         "--grader-timeout", "300",
         "--max-turns", "90",
     ]
-    if resume:
+    if resume and (runs_root.resolve() / run_key).exists():
         output.append("--resume")
     return output
 
@@ -95,6 +98,7 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--start-index", type=int, default=0)
     parser.add_argument("--limit", type=int)
+    parser.add_argument("--canary-task", help="Select attempt 1 for all six routes of one preregistered task")
     parser.add_argument("--summary", type=Path, default=ROOT / "proof" / "campaign-driver-summary.json")
     args = parser.parse_args()
     if args.jobs < 1 or args.jobs > 6:
@@ -110,15 +114,73 @@ def main() -> int:
     if freeze.returncode != 0:
         detail = (freeze.stdout + freeze.stderr).strip()
         raise SystemExit(f"source freeze verification failed; refusing campaign execution: {detail}")
+    runtime = subprocess.run(
+        [sys.executable, str(HERMES_RUNTIME), "verify"],
+        cwd=ROOT,
+        check=False,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if runtime.returncode != 0:
+        detail = (runtime.stdout + runtime.stderr).strip()
+        raise SystemExit(f"Hermes runtime verification failed; refusing campaign execution: {detail}")
+    graders = subprocess.run(
+        [sys.executable, str(GRADER_COMMITMENTS), "verify"],
+        cwd=ROOT,
+        check=False,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if graders.returncode != 0:
+        detail = (graders.stdout + graders.stderr).strip()
+        raise SystemExit(f"grader commitment verification failed; refusing campaign execution: {detail}")
     suite = load_suite()
     full_plan = plan(suite)
     selected = list(enumerate(full_plan))[args.start_index:]
-    if args.limit is not None:
+    if args.canary_task:
+        if args.start_index != 0 or args.limit is not None:
+            raise SystemExit("--canary-task cannot be combined with --start-index or --limit")
+        task_ids = {task["id"] for task in suite["tasks"]}
+        if args.canary_task not in task_ids:
+            raise SystemExit(f"unknown canary task: {args.canary_task}")
+        if args.canary_task != suite["canary_task"]:
+            raise SystemExit(f"canary task must match frozen selection: {suite['canary_task']}")
+        selected = [
+            (index, item)
+            for index, item in enumerate(full_plan)
+            if item["task_id"] == args.canary_task and item["attempt"] == 1
+        ]
+        if len(selected) != 6 or {(item["provider"], item["requested_model"]) for _, item in selected} != {
+            (route["provider"], route["requested_model"]) for route in suite["routes"]
+        }:
+            raise RuntimeError("canary selection must contain exactly the six frozen routes")
+    elif args.limit is not None:
         selected = selected[:args.limit]
     if args.dry_run:
         value = {"schema_version": "1.0", "full_run_count": len(full_plan), "selected_run_count": len(selected), "runs": [{"index": i, **item, "command": command(item, args.runs_root, resume=args.resume)} for i, item in selected]}
         print(json.dumps(value, indent=2, sort_keys=True))
         return 0
+    if not args.canary_task:
+        canary = subprocess.run(
+            [
+                sys.executable,
+                str(CAMPAIGN_INTEGRITY),
+                str(args.runs_root),
+                "--expected", "6",
+                "--scope", "canary",
+                "--allow-planned-extras",
+            ],
+            cwd=ROOT,
+            check=False,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if canary.returncode != 0:
+            detail = (canary.stdout + canary.stderr).strip()
+            raise SystemExit(f"eligible six-route canary verification failed; refusing continuation: {detail}")
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as executor:
         futures = {executor.submit(run_item, i, item, args.runs_root, args.resume): i for i, item in selected}

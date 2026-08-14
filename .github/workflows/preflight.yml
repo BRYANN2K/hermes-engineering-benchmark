@@ -29,6 +29,8 @@ jobs:
           fi
       - name: Runner unit tests
         run: python3 -m unittest discover -s harness/runner/tests -v
+      - name: Aggregator and runtime-manifest unit tests
+        run: python3 -m unittest discover -s tests -v
       - name: Verify frozen public source tree
         run: |
           if test -f freeze-manifest.public.json; then
@@ -39,6 +41,7 @@ jobs:
           if test -d private_graders; then
             python3 scripts/validate_suite.py --jobs 4
             python3 scripts/validate_runner_integration.py --jobs 4
+            git checkout -- runtime/sandbox/landlock-run.sha256
             python3 scripts/freeze.py verify
           else
             echo 'Hidden grader source is withheld during the active campaign; verifying committed hashes only.'

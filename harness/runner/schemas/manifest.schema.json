@@ -7,6 +7,7 @@
     "schema_version",
     "run_id",
     "created_at",
+    "benchmark_freeze",
     "task",
     "hermes",
     "limits",
@@ -20,6 +21,16 @@
     "schema_version": {"const": "1.0"},
     "run_id": {"type": "string", "minLength": 1},
     "created_at": {"type": "string"},
+    "benchmark_freeze": {
+      "type": "object",
+      "required": ["status", "source_tree_sha256", "file_count"],
+      "properties": {
+        "status": {"enum": ["verified", "not_applicable_mock"]},
+        "source_tree_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "file_count": {"type": ["integer", "null"], "minimum": 1}
+      },
+      "additionalProperties": false
+    },
     "task": {
       "type": "object",
       "required": ["task_id", "attempt", "prompt_sha256", "starter_sha256", "starter_git"],
@@ -43,9 +54,11 @@
     },
     "hermes": {
       "type": "object",
-      "required": ["executable", "provider", "model", "reasoning", "toolsets", "safe_mode", "command"],
+      "required": ["executable", "runtime_manifest_sha256", "runtime_verification", "provider", "model", "reasoning", "toolsets", "safe_mode", "command"],
       "properties": {
         "executable": {"type": "string"},
+        "runtime_manifest_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "runtime_verification": {"enum": ["verified", "not_applicable_mock"]},
         "provider": {"enum": ["openai-codex", "opencode-go"]},
         "model": {
           "enum": [
@@ -78,19 +91,21 @@
       "type": "object",
       "required": ["HERMES_HOME", "HERMES_MAX_ITERATIONS", "TZ", "LC_ALL", "agent_tool_sandbox", "grader_sandbox"],
       "properties": {
-        "HERMES_HOME": {"const": "/opt/data"},
+        "HERMES_HOME": {"const": "ephemeral-per-run"},
         "HERMES_MAX_ITERATIONS": {"const": "90"},
         "TZ": {"const": "UTC"},
         "LC_ALL": {"type": "string"},
         "agent_tool_sandbox": {
           "type": "object",
-          "required": ["enabled", "hook_sha256", "sandbox_run_sha256", "landlock_helper_sha256", "network_policy"],
+          "required": ["enabled", "hook_sha256", "sandbox_run_sha256", "landlock_helper_sha256", "network_policy", "cognitive_isolation", "credential_policy"],
           "properties": {
             "enabled": {"type": "boolean"},
             "hook_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
             "sandbox_run_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
             "landlock_helper_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
-            "network_policy": {"type": "string"}
+            "network_policy": {"type": "string"},
+            "cognitive_isolation": {"type": "string"},
+            "credential_policy": {"type": "string"}
           },
           "additionalProperties": false
         },
@@ -109,10 +124,11 @@
     },
     "grader": {
       "type": "object",
-      "required": ["executable", "sha256", "arguments", "interface"],
+      "required": ["executable", "sha256", "bundle_sha256", "arguments", "interface"],
       "properties": {
         "executable": {"type": "string"},
         "sha256": {"$ref": "#/$defs/sha256"},
+        "bundle_sha256": {"$ref": "#/$defs/sha256"},
         "arguments": {"type": "array", "items": {"type": "string"}},
         "interface": {"type": "string"}
       },

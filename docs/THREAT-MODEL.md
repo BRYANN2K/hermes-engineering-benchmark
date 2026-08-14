@@ -20,7 +20,9 @@ The model-facing Hermes process must reach the selected provider API, so the hos
 - bounded CPU, memory, process and file resources;
 - a minimal environment with credential-like variables removed.
 
-`sitecustomize.py` is loaded only in the host Hermes process. `sandbox-run` removes all hook variables before executing untrusted child Python, preventing recursive host-hook injection.
+`sitecustomize.py` is loaded only in the host Hermes process. Before the one-shot agent is constructed it forces `skip_memory=true`, `skip_context_files=true`, `load_soul_identity=false` and `fallback_model=None`. Every run must contain exactly one applied cognitive-isolation marker or it is an infrastructure failure.
+
+`HERMES_HOME` is a fresh disposable directory per run and is removed before grading and sealing. Authentication is the only shared state: OpenAI Codex uses the host-side auth store and OpenCode Go receives its provider key in the host Hermes environment. `sandbox-run` rebuilds a minimal environment and removes credential and hook variables before executing every untrusted tool command. The integration proof checks that the OpenCode key is absent inside a real Hermes terminal tool invocation.
 
 ## Grader boundary
 
@@ -35,6 +37,8 @@ The grader is never included in the model prompt or workspace. After Hermes exit
 ## Frozen inputs
 
 `freeze-manifest.json` records SHA-256 and byte size for all tasks, graders, harness files, sandbox source, scripts, roster and pricing. The campaign driver calls `freeze.py verify` before selecting any run.
+
+The external Hermes installation is bound separately by `runtime/hermes-runtime-manifest.json`. It inventories the launcher, root Python modules, `agent/`, `hermes_cli/`, `tools/`, dependency lockfiles, Python interpreter hash and installed distribution file hashes. The driver verifies it before campaign selection and the runner verifies it again before every real cell. Safe-mode-excluded UI, skills, plugins, gateway state, user config, memory, sessions and credentials are not content-hashed.
 
 Each completed run records checksums for every retained artifact and a `COMPLETE` marker containing the checksum-file digest. Write bits are removed recursively. The aggregator revalidates these hashes before calculating metrics.
 

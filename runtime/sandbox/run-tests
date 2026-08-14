@@ -18,6 +18,7 @@ hidden="$test_root/hidden-grader"
 assets="$test_root/runtime-assets"
 
 cc -std=c11 -O2 -Wall -Wextra -Werror -o landlock-run landlock-run.c
+sha256sum landlock-run | cut -d ' ' -f1 > landlock-run.sha256
 chmod 0755 landlock-run sandbox-run probe.py run-tests
 mkdir -p "$workspace/git-smoke" "$hidden" "$assets"
 printf 'HIDDEN_CANARY_7f31d9b4\n' > "$hidden/canary.txt"
@@ -27,6 +28,19 @@ chmod 0600 "$hidden/canary.txt"
 chmod 0555 "$assets"
 chmod 0444 "$assets/data.txt"
 cp probe.py "$workspace/probe.py"
+
+printf '== compiled-helper hash tamper probe ==\n'
+tamper="$test_root/tampered-helper"
+mkdir -p "$tamper"
+cp sandbox-run landlock-run "$tamper/"
+printf '%064d\n' 0 > "$tamper/landlock-run.sha256"
+set +e
+"$tamper/sandbox-run" "$workspace" /usr/bin/true > "$test_root/tamper.stdout" 2> "$test_root/tamper.stderr"
+tamper_rc=$?
+set -e
+test "$tamper_rc" -eq 125
+grep -q 'compiled-helper hash mismatch' "$test_root/tamper.stderr"
+printf 'tampered_helper_exit=%s\n' "$tamper_rc"
 
 printf '== baseline: same-UID host process can read canary ==\n'
 printf 'baseline_canary='
@@ -77,4 +91,4 @@ printf 'canary_after=%s\n' "$canary"
 printf 'workspace_edit=%s\n' "$(tr '\n' '|' < "$workspace/edited.txt")"
 
 printf '== hashes ==\n'
-sha256sum landlock-run landlock-run.c sandbox-run probe.py run-tests
+sha256sum landlock-run landlock-run.sha256 landlock-run.c sandbox-run probe.py run-tests

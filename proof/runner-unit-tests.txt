@@ -5,9 +5,11 @@ test_relative_grader_path_executes_from_run_directory (test_runner.RunnerExecuti
 test_resume_incomplete_run_rejects_changed_inputs (test_runner.RunnerExecutionTests.test_resume_incomplete_run_rejects_changed_inputs) ... ok
 test_run_captures_complete_immutable_artifact (test_runner.RunnerExecutionTests.test_run_captures_complete_immutable_artifact) ... ok
 test_timeout_kills_the_process_group_and_still_runs_grader (test_runner.RunnerExecutionTests.test_timeout_kills_the_process_group_and_still_runs_grader) ... ok
+test_dotenv_parser_handles_export_and_quotes (test_runner.RunnerPlanTests.test_dotenv_parser_handles_export_and_quotes) ... ok
 test_matrix_dry_run_uses_the_frozen_six_route_matrix (test_runner.RunnerPlanTests.test_matrix_dry_run_uses_the_frozen_six_route_matrix) ... ok
+test_trace_requires_applied_cognitive_isolation (test_runner.RunnerPlanTests.test_trace_requires_applied_cognitive_isolation) ... ok
 
 ----------------------------------------------------------------------
-Ran 8 tests in 11.998s
+Ran 10 tests in 7.221s
 
 OK

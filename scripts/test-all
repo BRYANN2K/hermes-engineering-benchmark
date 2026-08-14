@@ -3,7 +3,14 @@ set -euo pipefail
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
 unset PYTHONPATH PYTHONHOME HEB_TOOL_SANDBOX HEB_SANDBOX_RUN HEB_SANDBOX_TRACE HERMES_WRITE_SAFE_ROOT TERMINAL_CWD
 mkdir -p "$root/proof"
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/heb-test-all.XXXXXX")
+trap 'rm -rf "$tmp"' EXIT HUP INT TERM
 "$root/scripts/build-sandbox"
-"$root/runtime/sandbox/run-tests" > "$root/proof/sandbox-kernel-tests.txt"
+"$root/runtime/sandbox/run-tests" | tr -d '\r' | python3 -c 'import sys; [print(line.rstrip()) for line in sys.stdin]' > "$root/proof/sandbox-kernel-tests.txt"
+python3 "$root/scripts/validate_tool_sandbox.py" | tee "$root/proof/hermes-tool-sandbox-validation.json"
 python3 -m unittest discover -s "$root/harness/runner/tests" -v 2>&1 | tee "$root/proof/runner-unit-tests.txt"
-python3 "$root/scripts/validate_suite.py" --jobs 4
+python3 -m unittest discover -s "$root/tests" -v 2>&1 | tee "$root/proof/aggregator-tests.txt"
+python3 "$root/scripts/validate_suite.py" --jobs 4 --output "$tmp/suite-validation.json"
+python3 "$root/scripts/validate_runner_integration.py" --jobs 4 --output "$tmp/runner-integration.json"
+python3 "$root/scripts/verify_hermes_runtime.py" verify | tee "$root/proof/hermes-runtime-verify.txt"
+python3 "$root/scripts/commit_graders.py" verify | tee "$root/proof/grader-commitments-verify.txt"

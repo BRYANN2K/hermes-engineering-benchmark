@@ -1,7 +1,17 @@
 test_all_routes_aggregate_and_cost_does_not_double_count_reasoning (test_aggregate.AggregateTests.test_all_routes_aggregate_and_cost_does_not_double_count_reasoning) ... ok
+test_campaign_integrity_cli_enforces_exact_canary_and_planned_extras (test_aggregate.AggregateTests.test_campaign_integrity_cli_enforces_exact_canary_and_planned_extras) ... ok
+test_campaign_plan_and_six_route_canary_integrity (test_aggregate.AggregateTests.test_campaign_plan_and_six_route_canary_integrity) ... ok
+test_canary_extra_key_policy_allows_only_frozen_full_plan (test_aggregate.AggregateTests.test_canary_extra_key_policy_allows_only_frozen_full_plan) ... ok
+test_cell_integrity_rejects_resealed_duplicate_cognitive_marker (test_aggregate.AggregateTests.test_cell_integrity_rejects_resealed_duplicate_cognitive_marker) ... ok
+test_cell_integrity_rejects_resealed_grader_commitment_tamper (test_aggregate.AggregateTests.test_cell_integrity_rejects_resealed_grader_commitment_tamper) ... ok
+test_cell_integrity_rejects_resealed_identity_tamper (test_aggregate.AggregateTests.test_cell_integrity_rejects_resealed_identity_tamper) ... ok
+test_cell_integrity_rejects_resealed_landlock_helper_tamper (test_aggregate.AggregateTests.test_cell_integrity_rejects_resealed_landlock_helper_tamper) ... ok
+test_cell_integrity_rejects_resealed_runtime_fingerprint_tamper (test_aggregate.AggregateTests.test_cell_integrity_rejects_resealed_runtime_fingerprint_tamper) ... ok
+test_cell_integrity_rejects_resealed_source_freeze_tamper (test_aggregate.AggregateTests.test_cell_integrity_rejects_resealed_source_freeze_tamper) ... ok
 test_undeclared_file_breaks_seal (test_aggregate.AggregateTests.test_undeclared_file_breaks_seal) ... ok
+test_write_verify_and_detect_runtime_drift (test_runtime_manifest.HermesRuntimeManifestTests.test_write_verify_and_detect_runtime_drift) ... ok
 
 ----------------------------------------------------------------------
-Ran 2 tests in 0.037s
+Ran 12 tests in 3.211s
 
 OK

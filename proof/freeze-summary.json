@@ -1,7 +1,15 @@
 {
-  "campaign_id": "campaign-20260813-v3",
-  "file_count": 466,
-  "note": "Full private freeze manifest retained locally until post-campaign grader disclosure.",
+  "campaign_id": "campaign-20260814-v4",
+  "file_count": 471,
+  "grader_commitment_count": 40,
+  "grader_commitments_included_in_freeze": true,
+  "hash_algorithm": "sha256",
+  "hermes_runtime_file_count": 594,
+  "hermes_runtime_manifest_sha256": "14221ec13f0a3f3b25c0d1cf4e131b934b71e053340e3ea1876b585a46ddbccb",
+  "hermes_runtime_sha256": "a996ff33779fd30e727144c28d3b3fbb391031f293ed2ecfd11233d29faf2c45",
+  "landlock_helper_hash_included_in_freeze": true,
+  "landlock_helper_sha256": "106261c28b02a50e926f2bb58f7bc918dae235abe11c3ac08697cf87b78c0707",
+  "private_graders_included_in_freeze": 252,
   "schema_version": "1.0",
-  "source_tree_sha256": "d29ce2c2d7be99d8a69c470a8b1f6cb78249cc97c05347ce689e05e2e44c4414"
+  "source_tree_sha256": "ee3327ff74001ae79175c7b103ebcf88b61b2797d3d966aeacf4efac38d13d6f"
 }

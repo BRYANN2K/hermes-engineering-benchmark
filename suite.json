@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "benchmark_name": "Hermes Engineering Benchmark",
-  "campaign_id": "campaign-20260813-v3",
+  "campaign_id": "campaign-20260814-v4",
   "benchmark_claim": "Raw-model, agentic software-engineering benchmark using one shared Hermes scaffold",
   "primary_metrics": [
     "resolved_rate_pass_at_1",
@@ -68,6 +68,7 @@
     "SRE-02",
     "SEC-02"
   ],
+  "canary_task": "BUG-01",
   "attempt_policy": {
     "all_tasks": [1],
     "repeat_subset_additional_attempts": [2, 3]
@@ -94,13 +95,20 @@
     "timezone":"UTC",
     "locale":"C.UTF-8",
     "fallback_providers":false,
+    "ephemeral_hermes_home":true,
+    "skip_memory":true,
+    "skip_context_files":true,
+    "load_soul_identity":false,
+    "skills_preloaded":[],
+    "session_persistence":false,
+    "credentials":"host-process-only shared store; absent from agent tools",
     "agent_tool_network":"disabled",
     "model_api_egress":"Hermes host process only",
     "grader_network":"external egress disabled; isolated loopback enabled for local HTTP tests"
   },
   "randomization": {
     "algorithm":"Python random.Random(seed).shuffle over task-attempt-route tuples",
-    "seed":"hermes-engineering-benchmark-2026-08-13-v1"
+    "seed":"hermes-engineering-benchmark-2026-08-14-v4"
   },
   "publication_policy": {
     "active_hidden_graders":"private until all counted runs are sealed",

@@ -1,9 +1,20 @@
 {
   "checks": {
+    "atomic_auth_shared": true,
+    "auth_lock_shared": true,
+    "auth_path_shared": true,
+    "cognitive_flags": {
+      "fallback_model": null,
+      "load_soul_identity": false,
+      "skip_context_files": true,
+      "skip_memory": true
+    },
     "content_has_payload": true,
     "content_has_terminal": true,
+    "ephemeral_auth_absent": true,
     "network_rc": 1,
     "outside_rc": 1,
+    "secret_absent_rc": 0,
     "state_output": "kept",
     "terminal_rc": 0,
     "write_error": null
@@ -11,6 +22,6 @@
   "passed": true,
   "returncode": 0,
   "stderr": "",
-  "trace_lines": 14,
+  "trace_lines": 16,
   "trace_markers_valid": true
 }

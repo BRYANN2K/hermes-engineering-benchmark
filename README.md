@@ -53,13 +53,15 @@ The exact task IDs, tracks, route matrix, repeat subset, randomization seed, met
 Every experimental cell gets:
 
 1. a fresh starter copy and synthetic private Git baseline;
-2. a fresh safe-mode Hermes one-shot session with no user memory, soul, rules, plugins, MCP servers or fallback provider;
+2. a disposable per-run `HERMES_HOME`; a frozen constructor hook forces `skip_memory=true`, `skip_context_files=true`, no soul identity and no fallback, then records an attestation in every run;
 3. terminal and file tools confined to the run workspace by user/mount/network/PID namespaces, Landlock, seccomp, capability removal and resource limits;
-4. no socket creation from agent tools, while the host Hermes process retains only the egress needed to call the selected model route;
+4. no socket creation and no provider credentials inside agent tools, while the host Hermes process retains only the credential and egress needed to call the selected route;
 5. a hidden grader invoked only after the agent stops, in a separate no-network sandbox over a disposable writable copy;
 6. a sealed artifact directory containing prompt, stdout/stderr, usage, timing, patch, workspace, grading output and checksums.
 
 The kernel sandbox and the hook into Hermes' real local backend are independently tested under [`proof/`](proof/). See [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md) for boundaries and non-claims.
+
+The external Hermes runtime is also frozen by content: launcher, imported Python modules, lockfiles, interpreter, and installed distribution files. The driver verifies that fingerprint before selecting runs, and the runner verifies it again before each real cell.
 
 ## Reproduce preflight tests
 
@@ -69,6 +71,7 @@ Requirements: Linux with unprivileged user namespaces and Landlock, Python 3.10+
 ./scripts/test-all
 python3 scripts/validate_tool_sandbox.py
 python3 scripts/validate_runner_integration.py --jobs 4
+python3 scripts/verify_hermes_runtime.py verify
 python3 scripts/freeze.py verify
 ```
 
@@ -81,6 +84,7 @@ The driver refuses to run unless the frozen source manifest matches byte-for-byt
 ```bash
 ./scripts/build-sandbox
 python3 scripts/freeze.py verify
+python3 scripts/verify_hermes_runtime.py verify
 python3 scripts/run_campaign.py --dry-run
 python3 scripts/run_campaign.py --jobs 3 --resume
 ```
@@ -97,7 +101,8 @@ The aggregator verifies every sealed run checksum before computing results. It w
 
 ## Cost semantics
 
-- `actual_cost_usd`: populated only when the provider supplies evidence of a priced/billed amount.
+- `actual_cost_usd`: populated only when the provider supplies explicit evidence of a billed amount.
+- `provider_reported_estimated_cost_usd`: retained separately when Hermes reports a local/provider estimate without billing evidence.
 - `api_equivalent_cost_usd`: normalized from frozen public per-token prices.
 - `included` and `unknown` are retained as statuses, never silently converted to a billed dollar amount.
 

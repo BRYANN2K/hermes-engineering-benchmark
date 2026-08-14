@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "campaign_eligibility": "excluded_pre_freeze_validation_only",
+  "passed": true,
+  "six_route_auth_isolation_probe": {
+    "routes_expected": 6,
+    "routes_completed": 6,
+    "driver_returncodes_zero": 6,
+    "runtime_homes_ephemeral_and_removed": 6,
+    "cognitive_isolation_attestations_exactly_one": 6,
+    "tool_sandbox_verified": 6,
+    "grader_completed": 6,
+    "provider_authentication_succeeded": 6
+  },
+  "external_runtime_probe": {
+    "route": "openai-codex/gpt-5.6-sol",
+    "task": "BUG-01",
+    "runtime_verification": "verified",
+    "runtime_manifest_hash_bound_in_request_and_manifest": true,
+    "cognitive_isolation_attestations_exactly_one": true,
+    "runtime_home_removed": true,
+    "tool_sandbox_verified": true,
+    "grader_completed": true,
+    "candidate_passed": true,
+    "sealed_artifact_verified": true,
+    "hermes_wall_seconds": 311.73029661364853
+  },
+  "notes": [
+    "All probes were executed before the final v4 freeze and are excluded from campaign metrics.",
+    "The external-runtime fingerprint check is provider-agnostic and executes before every eligible real cell.",
+    "No grader output, hidden test name, credential value, auth-store path, temporary workspace path, token count or candidate patch is published in this summary."
+  ]
+}

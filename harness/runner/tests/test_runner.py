@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import stat
@@ -15,9 +16,35 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "runner.py"
+_SPEC = importlib.util.spec_from_file_location("benchmark_runner", RUNNER)
+assert _SPEC is not None and _SPEC.loader is not None
+RUNNER_MODULE = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(RUNNER_MODULE)
 
 
 class RunnerPlanTests(unittest.TestCase):
+    def test_dotenv_parser_handles_export_and_quotes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / ".env"
+            path.write_text("OTHER=nope\nexport OPENCODE_GO_API_KEY='probe-value'\n", encoding="utf-8")
+            self.assertEqual(RUNNER_MODULE.read_dotenv_value(path, "OPENCODE_GO_API_KEY"), "probe-value")
+            self.assertIsNone(RUNNER_MODULE.read_dotenv_value(path, "MISSING"))
+
+    def test_trace_requires_applied_cognitive_isolation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            trace = Path(tmp) / "trace.jsonl"
+            trace.write_text(
+                json.dumps({
+                    "sandbox": "hermes-tool-hook",
+                    "installed": True,
+                    "cognitive_isolation_installed": True,
+                    "ephemeral_home": True,
+                    "shared_credentials_host_only": True,
+                }) + "\n",
+                encoding="utf-8",
+            )
+            self.assertFalse(RUNNER_MODULE.verify_sandbox_trace(trace, enabled=True))
+
     def test_matrix_dry_run_uses_the_frozen_six_route_matrix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -90,7 +117,7 @@ class RunnerExecutionTests(unittest.TestCase):
             """#!/usr/bin/env python3
 import json, os, pathlib, sys
 args = sys.argv[1:]
-assert os.environ[\"HERMES_HOME\"] == \"/opt/data\"
+assert pathlib.Path(os.environ["HERMES_HOME"]).name == ".hermes-home"
 assert args[args.index(\"--reasoning\") + 1] == \"high\"
 assert args[args.index(\"--toolsets\") + 1] == \"terminal,file\"
 provider = args[args.index(\"--provider\") + 1]
@@ -153,14 +180,27 @@ print(json.dumps({\"passed\": passed, \"score\": 1.0 if passed else 0.0, \"detai
             self.assertTrue((run_dir / "schemas" / "manifest.schema.json").is_file())
             self.assertTrue((run_dir / "schemas" / "result.schema.json").is_file())
             manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+            schema = json.loads((run_dir / "schemas" / "manifest.schema.json").read_text(encoding="utf-8"))
+            for key in ("benchmark_freeze", "task", "hermes", "limits", "environment", "grader", "pricing"):
+                declared = set(schema["properties"][key]["properties"])
+                self.assertEqual(set(manifest[key]), declared)
             self.assertEqual(manifest["hermes"]["provider"], "openai-codex")
+            self.assertEqual(manifest["hermes"]["runtime_verification"], "not_applicable_mock")
+            self.assertIsNone(manifest["hermes"]["runtime_manifest_sha256"])
+            self.assertEqual(manifest["benchmark_freeze"]["status"], "not_applicable_mock")
+            self.assertIsNone(manifest["benchmark_freeze"]["source_tree_sha256"])
             self.assertEqual(manifest["limits"]["max_turns"], 90)
-            self.assertEqual(manifest["environment"]["HERMES_HOME"], "/opt/data")
+            self.assertEqual(manifest["environment"]["HERMES_HOME"], "ephemeral-per-run")
+            self.assertFalse((run_dir / ".hermes-home").exists())
             result = json.loads((run_dir / "result.json").read_text(encoding="utf-8"))
             self.assertTrue(result["grader"]["passed"])
             self.assertTrue(result["outcome"]["success"])
             self.assertIn("after:openai-codex:gpt-5.6-sol", (run_dir / "git.diff").read_text(encoding="utf-8"))
             self.assertFalse(os.access(run_dir / "manifest.json", os.W_OK))
+            self.assertEqual(
+                [path.relative_to(run_dir).as_posix() if path != run_dir else "." for path in [run_dir, *run_dir.rglob("*")] if path.stat().st_mode & 0o222],
+                [],
+            )
             # The verifier must reject files added outside the sealed inventory.
             run_dir.chmod(run_dir.stat().st_mode | stat.S_IWUSR)
             extra = run_dir / "undeclared.txt"

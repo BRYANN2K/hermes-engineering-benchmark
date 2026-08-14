@@ -3,4 +3,5 @@ set -euo pipefail
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
 sandbox="$root/runtime/sandbox"
 cc -O2 -Wall -Wextra -Werror -o "$sandbox/landlock-run" "$sandbox/landlock-run.c"
+sha256sum "$sandbox/landlock-run" | cut -d ' ' -f1 > "$sandbox/landlock-run.sha256"
 printf 'built %s\n' "$sandbox/landlock-run"

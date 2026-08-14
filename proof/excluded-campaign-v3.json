@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "campaign-20260813-v3",
+  "eligible": false,
+  "artifacts_preserved": true,
+  "reason": "Source audit after the canary showed that Hermes oneshot mode documents and implements normal-chat memory/rules behavior. The runner used --safe-mode but did not explicitly construct AIAgent with skip_memory=true and skip_context_files=true. Strict cognitive isolation was therefore not proven.",
+  "leaderboard_policy": "No v3 artifact may be aggregated, resumed, regraded, or relabelled as a later campaign run.",
+  "successor_campaign_id": "campaign-20260814-v4"
+}

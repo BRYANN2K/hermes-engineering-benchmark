@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "campaign-20260814-v4",
+  "created_at_utc": "2026-08-14T00:52:14Z",
+  "run_count": 360,
+  "concurrency": 3,
+  "planning_estimate": {
+    "basis": "Five-route API-01 pilot measurements extrapolated to 60 runs per route; Daybreak uses the observed Sol route only as a planning proxy.",
+    "api_equivalent_cost_usd": 80.04,
+    "serial_wall_hours": 27.09,
+    "idealized_wall_hours_at_concurrency_3": 9.03,
+    "interpretation": "Planning estimates only. They are neither a spending authorization nor evidence of billed cost. Congestion and failures can increase elapsed time."
+  },
+  "billing_semantics": {
+    "openai_codex": "Preserve provider-reported included status. Never relabel normalized API-equivalent cost as actual billed cost.",
+    "opencode_go": "Preserve unknown actual billing status unless authoritative billed evidence becomes available.",
+    "reasoning_tokens": "Report separately but do not add again when already included in output tokens."
+  },
+  "canary_policy": {
+    "count": 6,
+    "selection": "BUG-01, attempt 1, all six frozen routes.",
+    "eligibility": "Canary runs count in the 360 only if every artifact passes freeze, cognitive-isolation, sandbox and checksum verification with no source modification after inference begins.",
+    "continuation": "After a valid canary, execute the full plan with --resume so the six immutable completed run keys are reused and the remaining 354 are created. The campaign driver independently re-verifies all six canaries before submitting any non-canary cell."
+  },
+  "stopping_rules": [
+    "Do not change any frozen task, prompt, public test, private grader, reference, known-bad fixture, runner, sandbox, script, route, pricing snapshot, seed, timeout, reasoning level, toolset, memory/context/skill setting, or campaign policy after the first eligible v4 model call starts.",
+    "Do not change the externally fingerprinted Hermes launcher, root Python modules, agent/, hermes_cli/, tools/, lockfiles, Python interpreter or installed distribution versions after the first eligible v4 model call starts.",
+    "Any frozen-source change after eligible inference begins invalidates v4 in full. Preserve its artifacts, record an exclusion, and create a new campaign identifier.",
+    "A deterministic candidate rejection is a valid benchmark outcome, not an infrastructure retry.",
+    "Provider errors, timeouts and grader infrastructure failures remain recorded outcomes. Do not selectively rerun sealed completed artifacts.",
+    "Resume is permitted only for an incomplete run with an identical frozen request and run key, or to reuse an already complete checksum-valid run while executing the remaining frozen plan.",
+    "Abort continuation if freeze verification, grader commitments, cognitive isolation, tool sandbox activation, grader sandbox activation, or sealed-artifact integrity fails.",
+    "No v1, v2, v3, pilot, pre-freeze probe or fixture run may be included in v4 metrics."
+  ]
+}

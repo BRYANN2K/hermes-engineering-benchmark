@@ -26,10 +26,13 @@ For every model, the runner fixes or records:
 - identical prompt bytes from `--prompt-file`;
 - identical explicit `--reasoning` and `--toolsets` values;
 - explicit provider, model, and `--usage-file` arguments;
-- Hermes `--safe-mode`, which excludes user config, rules, SOUL/memory, plugins, and MCP servers;
-- `HERMES_HOME=/opt/data` exactly;
+- Hermes `--safe-mode` to exclude user config, rules, plugins, MCP servers and hooks;
+- a disposable per-run `HERMES_HOME`, removed immediately after the agent process exits;
+- a frozen constructor hook that forces `skip_memory`, `skip_context_files`, no soul identity and no fallback, with an applied marker required in the sealed trace;
+- shared provider credentials available only to the host Hermes process; `sandbox-run` rebuilds a minimal environment and strips credential/hook variables before each tool command;
 - `TZ=UTC`, `LC_ALL=C.UTF-8`, and the same wall-clock limits;
 - a 90-turn budget. Hermes v0.20.0 one-shot constructs `AIAgent` with 90 turns and exposes no one-shot `--max-turns` flag, so this runner rejects every other `--max-turns` value rather than pretending it can enforce one;
+- a content fingerprint for the external Hermes launcher, imported Python modules, lockfiles, interpreter and installed distribution files, verified before every real cell;
 - the starter content digest, original Git metadata when available, prompt digest, grader digest, and exact command.
 
 Each run receives a private copy of the starter **content**. Source `.git` metadata is not copied: copied linked worktrees can point their index back at the source, which is unsafe under parallelism. Instead, the runner creates a synthetic private baseline commit inside each workspace. This keeps source trees untouched and makes `git.diff`/`git.patch` describe only benchmark changes. Git-ignored starter files are included in the baseline.
