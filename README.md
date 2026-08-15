@@ -12,7 +12,9 @@
 </div>
 
 <p align="center">
-  <img src="results/2026-08-14-v4/resolved-rate.svg" alt="Primary resolved rate for the six benchmark routes" width="100%">
+  <a href="quality-score-slides/00-overall-hook.svg">
+    <img src="quality-score-slides/00-overall-hook.svg" alt="Severity-weighted quality ranking across the six benchmark routes" width="100%">
+  </a>
 </p>
 
 The benchmark measures whether an agent can change a small software repository and satisfy its public contract plus deterministic private grading. Every route receives the same frozen task, harness, tools, reasoning level, timeout and stopping rules. Provider fallback is disabled.
@@ -43,12 +45,6 @@ The cost column is an API-equivalent estimate over primary runs with provider to
 ## Supplemental quality audit
 
 The canonical leaderboard above remains a binary measure of whether each primary attempt satisfied the complete deterministic grader. A separate post-hoc audit scores the residual implementation quality from 0 to 100 using only visible task contracts and the public failure analysis. Its ten category scores are equally weighted, repeat reliability remains separate, and `UI-05` is excluded for every route because the enforced coupon return contract was not explicit in the visible task.
-
-<p align="center">
-  <a href="quality-score-slides/00-overall-hook.svg">
-    <img src="quality-score-slides/00-overall-hook.svg" alt="Severity-weighted quality ranking across the six benchmark routes" width="100%">
-  </a>
-</p>
 
 | Rank | Route condition | Quality score | Canonical resolved rate |
 |---:|---|---:|---:|
