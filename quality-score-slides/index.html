@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>LLM Engineering Benchmark — Severity-weighted Scores</title>
+  <style>
+    :root {
+      --bg: oklch(0.9585 0.0098 87.47);
+      --surface: oklch(0.985 0.006 87.47);
+      --fg: oklch(0.2046 0 89.88);
+      --muted: oklch(0.5264 0.0138 79.74);
+      --border: oklch(0.8658 0.0151 80.70);
+      --focus: oklch(0.3539 0.1639 270.52);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Helvetica Neue", Helvetica, sans-serif;
+    }
+
+    .viewer {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+      padding: 22px clamp(18px, 3vw, 54px) 26px;
+    }
+
+    .viewer-header,
+    .viewer-controls {
+      width: min(100%, 1420px);
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .viewer-title {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(26px, 3vw, 42px);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.08;
+    }
+
+    .viewer-meta,
+    .slide-counter {
+      color: var(--muted);
+      font-family: Menlo, Monaco, "Courier New", monospace;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .stage {
+      width: min(100%, 1420px);
+      margin-inline: auto;
+      display: grid;
+      place-items: center;
+      min-height: 0;
+    }
+
+    .slide-frame {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      display: block;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: 0 20px 60px oklch(0.2046 0 89.88 / 0.12);
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button {
+      min-width: 118px;
+      min-height: 48px;
+      border: 1px solid var(--fg);
+      border-radius: 0;
+      background: transparent;
+      color: var(--fg);
+      padding: 0 18px;
+      font: 600 14px/1 "Helvetica Neue", Helvetica, sans-serif;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: background-color 140ms ease, color 140ms ease, transform 140ms ease;
+    }
+
+    button:hover:not(:disabled) { background: var(--fg); color: var(--bg); }
+    button:active:not(:disabled) { transform: translateY(2px); }
+    button:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    button:disabled { opacity: 0.42; cursor: not-allowed; }
+
+    @media (max-width: 720px) {
+      .viewer { padding: 16px 12px 18px; gap: 14px; }
+      .viewer-header { align-items: flex-start; }
+      .viewer-meta { max-width: 19ch; text-align: right; }
+      .viewer-controls { align-items: stretch; }
+      .control-group { width: 100%; }
+      button { min-width: 0; flex: 1; }
+      .slide-counter { align-self: center; white-space: nowrap; }
+    }
+
+    @media (prefers-reduced-motion: reduce) { button { transition: none; } }
+  </style>
+</head>
+<body>
+  <main class="viewer" data-od-id="deck-viewer">
+    <header class="viewer-header" data-od-id="viewer-header">
+      <h1 class="viewer-title" data-od-id="viewer-heading">Engineering Arena</h1>
+      <div class="viewer-meta">BRYANN2K · SEVERITY-WEIGHTED SCORES</div>
+    </header>
+
+    <section class="stage" data-od-id="slide-stage" aria-live="polite">
+      <img id="slide-frame" class="slide-frame" data-od-id="active-slide" src="00-overall-hook.svg" alt="Engineering Arena — horizontal bar chart ranking all six routes; Luna ranks first">
+    </section>
+
+    <nav class="viewer-controls" data-od-id="deck-controls" aria-label="Slide navigation">
+      <div class="control-group">
+        <button id="previous" data-od-id="previous-slide" type="button" aria-label="Previous slide">← Previous</button>
+        <button id="next" data-od-id="next-slide" type="button" aria-label="Next slide">Next →</button>
+      </div>
+      <div id="counter" class="slide-counter" data-od-id="slide-counter">01 / 11</div>
+    </nav>
+  </main>
+
+  <script>
+    (() => {
+      const slides = [
+        { file: "00-overall-hook.svg", title: "Engineering Arena", alt: "Engineering Arena — horizontal bar chart ranking all six routes; Luna ranks first" },
+        { file: "01-devops.svg", title: "DevOps Arena", alt: "DevOps Arena — five routes tied at number one" },
+        { file: "02-cloud.svg", title: "Cloud Arena", alt: "Cloud Arena — five routes tied at number one" },
+        { file: "03-front-end.svg", title: "Front end Arena", alt: "Front end Arena — six routes tied at number one; UI-05 excluded" },
+        { file: "04-back-end.svg", title: "Back end Arena", alt: "Back end Arena — Daybreak Blue ranked number one" },
+        { file: "05-full-stack.svg", title: "Full stack Arena", alt: "Full stack Arena — four routes tied at number one" },
+        { file: "06-bug-fixing.svg", title: "Bug fixing Arena", alt: "Bug fixing Arena — Daybreak and Luna ranked number one" },
+        { file: "07-feature-implementation.svg", title: "Feature implementation Arena", alt: "Feature implementation Arena — three routes tied at number one" },
+        { file: "08-data-sql.svg", title: "Data and SQL Arena", alt: "Data and SQL Arena — Luna ranked number one" },
+        { file: "09-sre.svg", title: "SRE Arena", alt: "SRE Arena — five routes tied at number one" },
+        { file: "10-security.svg", title: "Security Arena", alt: "Security Arena — four routes tied at number one" }
+      ];
+
+      const storageKey = "llm-engineering-benchmark-quality-score-slide";
+      const frame = document.getElementById("slide-frame");
+      const heading = document.querySelector(".viewer-title");
+      const counter = document.getElementById("counter");
+      const previous = document.getElementById("previous");
+      const next = document.getElementById("next");
+      const stored = Number.parseInt(localStorage.getItem(storageKey) || "0", 10);
+      let current = Number.isFinite(stored) ? Math.min(Math.max(stored, 0), slides.length - 1) : 0;
+
+      function render() {
+        const slide = slides[current];
+        frame.src = slide.file;
+        frame.alt = slide.alt;
+        heading.textContent = slide.title;
+        counter.textContent = `${String(current + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+        previous.disabled = current === 0;
+        next.disabled = current === slides.length - 1;
+        localStorage.setItem(storageKey, String(current));
+      }
+
+      function move(delta) {
+        current = Math.min(Math.max(current + delta, 0), slides.length - 1);
+        render();
+      }
+
+      previous.addEventListener("click", () => move(-1));
+      next.addEventListener("click", () => move(1));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowLeft") move(-1);
+        if (event.key === "ArrowRight") move(1);
+        if (event.key === "Home") { current = 0; render(); }
+        if (event.key === "End") { current = slides.length - 1; render(); }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
