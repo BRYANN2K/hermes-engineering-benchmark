@@ -40,6 +40,61 @@ The cost column is an API-equivalent estimate over primary runs with provider to
 - [Use the machine-readable summary](results/2026-08-14-v4/summary.json)
 - [Verify the campaign integrity proof](proof/campaign-20260814-v4/full-integrity.json)
 
+## Supplemental quality audit
+
+The canonical leaderboard above remains a binary measure of whether each primary attempt satisfied the complete deterministic grader. A separate post-hoc audit scores the residual implementation quality from 0 to 100 using only visible task contracts and the public failure analysis. Its ten category scores are equally weighted, repeat reliability remains separate, and `UI-05` is excluded for every route because the enforced coupon return contract was not explicit in the visible task.
+
+<p align="center">
+  <a href="quality-score-slides/00-overall-hook.svg">
+    <img src="quality-score-slides/00-overall-hook.svg" alt="Severity-weighted quality ranking across the six benchmark routes" width="100%">
+  </a>
+</p>
+
+| Rank | Route condition | Quality score | Canonical resolved rate |
+|---:|---|---:|---:|
+| 1 | Luna | 98.3% | 90.0% |
+| 2 | Terra | 97.6% | 85.0% |
+| 3 | Daybreak Blue | 96.4% | 92.5% |
+| 4 | Sol standard | 92.6% | 80.0% |
+| 5 | DeepSeek V4 Flash | 89.6% | 70.0% |
+| 6 | DeepSeek V4 Pro | 82.8% | 62.5% |
+
+Luna is the standout on this view: a 98.3% quality score with a mean API-equivalent cost of $0.0203 across 40/40 covered primary runs. That is an observed cost/capability result under this campaign's fixed harness and specifications, not a universal model ranking or a billed-cost claim.
+
+- [Read the scoring method and interpretation limits](QUALITY-SCORES.md)
+- [Inspect the machine-readable quality scores](quality-scores.json)
+- [Read the public failure analysis](PUBLIC-FAILURE-ANALYSIS.md)
+- [Browse the slide deck and its deterministic verifier](quality-score-slides/)
+
+<details>
+<summary><strong>Browse all 10 category scorecards</strong></summary>
+<br>
+
+<table>
+  <tr>
+    <td width="50%"><strong>DevOps</strong><br><a href="quality-score-slides/01-devops.svg"><img src="quality-score-slides/01-devops.svg" alt="Severity-weighted DevOps scores" width="100%"></a></td>
+    <td width="50%"><strong>Cloud</strong><br><a href="quality-score-slides/02-cloud.svg"><img src="quality-score-slides/02-cloud.svg" alt="Severity-weighted Cloud scores" width="100%"></a></td>
+  </tr>
+  <tr>
+    <td width="50%"><strong>Front end</strong><br><a href="quality-score-slides/03-front-end.svg"><img src="quality-score-slides/03-front-end.svg" alt="Severity-weighted Front end scores" width="100%"></a></td>
+    <td width="50%"><strong>Back end</strong><br><a href="quality-score-slides/04-back-end.svg"><img src="quality-score-slides/04-back-end.svg" alt="Severity-weighted Back end scores" width="100%"></a></td>
+  </tr>
+  <tr>
+    <td width="50%"><strong>Full stack</strong><br><a href="quality-score-slides/05-full-stack.svg"><img src="quality-score-slides/05-full-stack.svg" alt="Severity-weighted Full stack scores" width="100%"></a></td>
+    <td width="50%"><strong>Bug fixing</strong><br><a href="quality-score-slides/06-bug-fixing.svg"><img src="quality-score-slides/06-bug-fixing.svg" alt="Severity-weighted Bug fixing scores" width="100%"></a></td>
+  </tr>
+  <tr>
+    <td width="50%"><strong>Feature implementation</strong><br><a href="quality-score-slides/07-feature-implementation.svg"><img src="quality-score-slides/07-feature-implementation.svg" alt="Severity-weighted Feature implementation scores" width="100%"></a></td>
+    <td width="50%"><strong>Data / SQL</strong><br><a href="quality-score-slides/08-data-sql.svg"><img src="quality-score-slides/08-data-sql.svg" alt="Severity-weighted Data and SQL scores" width="100%"></a></td>
+  </tr>
+  <tr>
+    <td width="50%"><strong>SRE</strong><br><a href="quality-score-slides/09-sre.svg"><img src="quality-score-slides/09-sre.svg" alt="Severity-weighted SRE scores" width="100%"></a></td>
+    <td width="50%"><strong>Security</strong><br><a href="quality-score-slides/10-security.svg"><img src="quality-score-slides/10-security.svg" alt="Severity-weighted Security scores" width="100%"></a></td>
+  </tr>
+</table>
+
+</details>
+
 ## Why this benchmark
 
 - **Executable work:** every task is a repository with code, tests and a concrete contract.
@@ -115,6 +170,9 @@ python3 -m py_compile scripts/*.py harness/runner/runner.py
 ./runtime/sandbox/run-tests
 python3 -m unittest discover -s harness/runner/tests -v
 python3 -m unittest discover -s tests -v
+python3 -m json.tool quality-scores.json >/dev/null
+python3 quality-score-slides/verify-slides.py
+shasum -a 256 -c SHA256SUMS
 ```
 
 These are the same public checks run by CI and make no model calls. Full suite and runner-integration validation additionally require the private graders; their frozen commitments and campaign-time validation summaries remain available under [`proof/`](proof/).
@@ -172,6 +230,10 @@ The frozen [`suite.json`](suite.json) keeps its original internal benchmark name
 │   └── 2026-08-14-v4/            # dated reports, CSV, JSON and charts
 ├── proof/
 │   └── campaign-20260814-v4/      # integrity and incident disclosures
+├── quality-score-slides/          # overall + 10 category scorecards
+├── QUALITY-SCORES.md              # supplemental scoring method and results
+├── quality-scores.json            # machine-readable supplemental scores
+├── PUBLIC-FAILURE-ANALYSIS.md     # public-safe failure evidence
 ├── scripts/                       # runner, verification and aggregation tools
 ├── docs/                          # methodology and threat model
 ├── pricing/                       # frozen public pricing inputs
