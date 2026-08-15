@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "campaign-20260814-v4",
+  "archived_at": "2026-08-14T13:39:27Z",
+  "reason": "campaign driver exited -15 with termination_source process.kill; child runner PIDs were absent and no live process referenced these run keys",
+  "eligibility": "excluded_incomplete_not_counted",
+  "source_tree_sha256": "ee3327ff74001ae79175c7b103ebcf88b61b2797d3d966aeacf4efac38d13d6f",
+  "runs": [
+    {
+      "run_key": "campaign-20260814-v4__CLOUD-02__a3__opencode-go__deepseek-v4-flash",
+      "runner_pid": 170257,
+      "complete_marker_present": false
+    },
+    {
+      "run_key": "campaign-20260814-v4__DATA-04__a2__openai-codex__gpt-5.6-luna",
+      "runner_pid": 172527,
+      "complete_marker_present": false
+    },
+    {
+      "run_key": "campaign-20260814-v4__DATA-04__a2__opencode-go__deepseek-v4-flash",
+      "runner_pid": 168361,
+      "complete_marker_present": false
+    }
+  ]
+}

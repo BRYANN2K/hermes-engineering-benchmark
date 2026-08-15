@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "campaign-20260814-v4",
+  "detected_at_utc": "2026-08-14T18:48:12Z",
+  "status": "documentary_artifact_stale_no_execution_impact_detected",
+  "affected_frozen_file": "proof/campaign-plan.json",
+  "finding": {
+    "proof_full_run_count": 360,
+    "proof_unique_identity_count": 360,
+    "live_plan_unique_identity_count": 360,
+    "identity_set_equal": true,
+    "identity_order_equal": false,
+    "commands_with_campaign_20260813_v3": 360
+  },
+  "execution_path": {
+    "proof_plan_consumed_by_code": false,
+    "authoritative_plan_source": "frozen suite.json through scripts/run_campaign.py::plan",
+    "integrity_source": "frozen suite.json through scripts/verify_campaign_integrity.py::campaign_plan",
+    "run_key_campaign_id_source": "frozen suite.json",
+    "source_tree_sha256": "ee3327ff74001ae79175c7b103ebcf88b61b2797d3d966aeacf4efac38d13d6f"
+  },
+  "campaign_policy": {
+    "frozen_tree_modified": false,
+    "campaign_continues": true,
+    "partial_results_exposed": false,
+    "post_seal_action": "publish a derived v4 plan from the frozen suite, disclose the stale unused proof, and retain the frozen file unchanged as evidence"
+  },
+  "derived_v4_plan": {
+    "path": "/opt/data/benchmarks/hermes-engineering-bench/derived/campaign-plan-v4-from-frozen-suite.json",
+    "sha256": "6a91fbf2a972cfd7135a5a5c6bc5cc21949857eb60fb1643ef3d67c8d428fdf2",
+    "run_count": 360,
+    "unique_identity_count": 360,
+    "order_matches_frozen_runner_plan": true,
+    "v3_string_count": 0,
+    "v4_run_key_count": 360
+  }
+}

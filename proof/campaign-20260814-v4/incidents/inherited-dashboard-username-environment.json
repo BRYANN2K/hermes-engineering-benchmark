@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "campaign-20260814-v4",
+  "incident_type": "inherited_nonsecret_dashboard_username_environment",
+  "discovered_at": "2026-08-14T19:54:36Z",
+  "frozen_source_tree_sha256": "ee3327ff74001ae79175c7b103ebcf88b61b2797d3d966aeacf4efac38d13d6f",
+  "hermes_runtime_sha256": "a996ff33779fd30e727144c28d3b3fbb391031f293ed2ecfd11233d29faf2c45",
+  "finding": {
+    "runner_environment_strategy": "copy host environment then remove names containing secret markers",
+    "dashboard_username_name_reaches_hermes_process": true,
+    "dashboard_password_name_reaches_hermes_process": false,
+    "dashboard_secret_name_reaches_hermes_process": false,
+    "dashboard_username_value_read_for_audit": false,
+    "candidate_tool_environment_inherits_username_name": true,
+    "uniform_warning_run_directories_observed": 281,
+    "run_directories_observed": 281,
+    "routes_affected": "all six",
+    "differential_route_treatment_observed": false
+  },
+  "trajectory_scan": {
+    "scope": "all current campaign *.json, *.jsonl, and *.txt artifacts",
+    "exact_dashboard_auth_variable_reference_files": 0,
+    "generic_env_printenv_or_proc_environ_command_files": 0,
+    "conclusion": "No observed candidate trajectory referenced the dashboard auth variables or enumerated the process environment. This is evidence of non-use, not proof that the inherited value was inaccessible."
+  },
+  "impact_assessment": {
+    "credential_exposure": false,
+    "nonsecret_operator_identity_exposure_possible": true,
+    "model_response_input": false,
+    "provider_transport_change": false,
+    "scoring_change_identified": false,
+    "campaign_validity": "retain with explicit limitation, final 360-run rescan, and post-campaign fix"
+  },
+  "required_final_checks": [
+    "Confirm the warning count and run-directory count are both exactly 360 after sealing.",
+    "Repeat exact-variable and generic environment-enumeration scans over all 360 sealed artifacts.",
+    "Bind this incident and final scan results into the postprocessor manifest and public limitations."
+  ],
+  "deferred_fix": {
+    "path": "/opt/data/benchmarks/v4-postcampaign-environment-fix.patch",
+    "apply_when": "only after v4 sealing and publication",
+    "design": "explicit host environment allowlist plus adversarial dashboard/gateway/profile regression"
+  }
+}

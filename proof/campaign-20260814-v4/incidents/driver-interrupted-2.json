@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "campaign-20260814-v4",
+  "interruption_observed_at_utc": "2026-08-14T18:53:47Z",
+  "source_freeze": {
+    "file_count": 471,
+    "source_tree_sha256": "ee3327ff74001ae79175c7b103ebcf88b61b2797d3d966aeacf4efac38d13d6f"
+  },
+  "driver": {
+    "process_session_id": "proc_95545c4e42b2",
+    "initial_pid": 174663,
+    "command": "python3 scripts/run_campaign.py --jobs 3 --resume --summary /tmp/campaign-20260814-v4-full-run-resume-2.json",
+    "exit_code": -15,
+    "completion_reason": "killed",
+    "termination_source": "process.kill"
+  },
+  "watcher": {
+    "process_session_id": "proc_d6aefb07186c",
+    "pid": 372440,
+    "exit_code": -15,
+    "completion_reason": "killed",
+    "termination_source": "process.kill"
+  },
+  "sealed_runs_preserved": 247,
+  "archived_partials": [
+    {
+      "run_key": "campaign-20260814-v4__DEVOPS-03__a2__opencode-go__deepseek-v4-flash",
+      "lock_pid": 543914,
+      "lock_created_at": "2026-08-14T18:45:17.857416Z",
+      "proc_pid_exists_before_archive": false,
+      "cmdline_reference_count_before_archive": 0
+    },
+    {
+      "run_key": "campaign-20260814-v4__API-04__a2__opencode-go__deepseek-v4-flash",
+      "lock_pid": 544689,
+      "lock_created_at": "2026-08-14T18:45:46.687786Z",
+      "proc_pid_exists_before_archive": false,
+      "cmdline_reference_count_before_archive": 0
+    },
+    {
+      "run_key": "campaign-20260814-v4__CLOUD-02__a1__openai-codex__gpt-5.6-sol",
+      "lock_pid": 544730,
+      "lock_created_at": "2026-08-14T18:45:52.891780Z",
+      "proc_pid_exists_before_archive": false,
+      "cmdline_reference_count_before_archive": 0
+    }
+  ],
+  "partial_archive_policy": "Only incomplete runs with dead lock PIDs and zero surviving cmdline references were moved. Sealed COMPLETE runs were not modified.",
+  "partial_results_published": false
+}

@@ -1,6 +1,9 @@
 # Runtime and local-only artifacts
 runs/
-results/
+results/*
+!results/README.md
+!results/2026-08-14-v4/
+!results/2026-08-14-v4/**
 *.tmp
 *.stderr.tmp
 __pycache__/
@@ -11,8 +14,7 @@ __pycache__/
 # Compiled helper: rebuild from the committed C source
 runtime/sandbox/landlock-run
 
-# Active hidden graders are withheld from the pre-campaign public branch.
-# They are force-added in the post-campaign disclosure commit.
+# Complete hidden graders remain private; frozen commitments are public.
 private_graders/
 
 # Full validation reports contain hidden-test failure excerpts. Publish only

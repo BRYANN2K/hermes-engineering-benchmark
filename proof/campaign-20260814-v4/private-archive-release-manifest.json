@@ -1,0 +1,19 @@
+{
+  "archive": {
+    "bytes": 9577232,
+    "name": "campaign-20260814-v4-sealed-artifacts.tar.gz",
+    "sha256": "0c8e655af8d36fde2b4efa34650900fd5c5bb57b3323cf2dd1ebdf203114c375"
+  },
+  "artifact_manifest": {
+    "bytes": 4590327,
+    "name": "campaign-20260814-v4-artifact-manifest.json",
+    "sha256": "888ce80f9c5c47739545ea89af3abd25a2d0f1f60dee58efb4350d603211c09c"
+  },
+  "campaign_id": "campaign-20260814-v4",
+  "integrity_report": {
+    "bytes": 235657,
+    "name": "campaign-20260814-v4-integrity.json",
+    "sha256": "a1138b1e66b5012fb4515a57e9e8e8cd6bdfd63d47b5807e6d952ce2ed197040"
+  },
+  "schema_version": "1.0"
+}

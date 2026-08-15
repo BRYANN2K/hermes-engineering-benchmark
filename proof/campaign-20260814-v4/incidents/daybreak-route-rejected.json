@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "campaign-20260814-v4",
+  "incident_type": "provider_route_rejected_before_counted_response",
+  "observed_at": "2026-08-14T19:38:00.245404Z",
+  "archived_at": "2026-08-14T19:46:42Z",
+  "run_key": "campaign-20260814-v4__DATA-04__a3__openai-codex__gpt-daybreak-blue-latest",
+  "plan_index": 267,
+  "task_id": "DATA-04",
+  "attempt": 3,
+  "provider": "openai-codex",
+  "requested_model": "gpt-daybreak-blue-latest",
+  "runner_returncode": 2,
+  "provider_error": "HTTP 400: {\"detail\":\"The 'gpt-daybreak-blue-latest' model is not supported when using Codex with a ChatGPT account.\"}",
+  "state": {
+    "schema_version": "1.0",
+    "stage": "prepared",
+    "updated_at": "2026-08-14T19:38:00.245404Z"
+  },
+  "usage": {
+    "api_calls": 4,
+    "completed": false,
+    "failed": true,
+    "provider": null,
+    "model": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null
+  },
+  "ownership_proof": {
+    "runner_lock_present_before_archive": false,
+    "matching_process_present_before_archive": false
+  },
+  "artifact_sha256": {
+    "request.json": "e44a47db17347184583abca7c25ab025e95af2a48bcf78a01053a15a7b09cc53",
+    "state.json": "e0ce1db08048642eb2176f648ffe1b302c913b753385b472dba366f9b800f492",
+    "stdout.txt": "3b09f926ef0187bf6cfcf997349e277f1866bc82937f3130140571564f29134a",
+    "stderr.txt": "7675f637b4fd74c44c7944113683a8b23f5f5a603801f92764e233e7990a3193",
+    "usage.json": "abdf94119ec4e3dcffc8100af4b9cf925edd4419e5b220c7dab941e8676b9158"
+  },
+  "frozen_source_tree_sha256": "ee3327ff74001ae79175c7b103ebcf88b61b2797d3d966aeacf4efac38d13d6f",
+  "hermes_runtime_sha256": "a996ff33779fd30e727144c28d3b3fbb391031f293ed2ecfd11233d29faf2c45",
+  "disposition": "excluded_unsealed_provider_failure",
+  "retry_policy": "Retry only the exact openai-codex/gpt-daybreak-blue-latest route under the unchanged frozen harness. No provider or model fallback is permitted. If the route remains unsupported, campaign completion is blocked and no aggregate may be produced."
+}

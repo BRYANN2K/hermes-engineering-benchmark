@@ -1,0 +1,16 @@
+{
+  "campaign_id": "campaign-20260814-v4",
+  "dashboard_auth_variable_reference_file_count": 0,
+  "environment_enumeration_trajectory_file_count": 0,
+  "frozen_source_tree_sha256": "ee3327ff74001ae79175c7b103ebcf88b61b2797d3d966aeacf4efac38d13d6f",
+  "hermes_runtime_sha256": "a996ff33779fd30e727144c28d3b3fbb391031f293ed2ecfd11233d29faf2c45",
+  "incident_sha256": "cbc18cb9a12bbf44ecc2720ca73348ea7dac901ed57e37d85fe973592d6317d4",
+  "jsonl_trace_coverage": "sandbox_and_isolation_events_only_not_a_complete_candidate_command_ledger",
+  "limitation": "A nonsecret dashboard username was process-accessible during counted runs. No sealed text artifact referenced the dashboard-auth variable names and no recorded JSONL isolation trace contained an environment-enumeration marker, but those JSONL traces are not a complete candidate command ledger.",
+  "passed": true,
+  "scanner_sha256": "686ac45cb7f999749df3df1e0d1ee26ed8a75c8e7c2cf16510aed64c03b7d4e6",
+  "schema_version": "1.0",
+  "sealed_inventory_sha256": "fd272980c407d8eff69cf79452655359d599d104c9ba9c1962289953642200ed",
+  "sealed_run_count": 360,
+  "warning_run_count": 360
+}

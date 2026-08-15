@@ -1,4 +1,4 @@
-# Hermes engineering benchmark runner
+# LLM Engineering Benchmark runner
 
 A dependency-free Python harness for running the **same agent scaffold** against the fixed six-route matrix and freezing one artifact directory per `route × task × attempt`.
 

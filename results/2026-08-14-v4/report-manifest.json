@@ -1,0 +1,32 @@
+{
+  "benchmark_source_file_count": 471,
+  "benchmark_source_tree_sha256": "ee3327ff74001ae79175c7b103ebcf88b61b2797d3d966aeacf4efac38d13d6f",
+  "campaign_id": "campaign-20260814-v4",
+  "derived_v4_plan_sha256": "6a91fbf2a972cfd7135a5a5c6bc5cc21949857eb60fb1643ef3d67c8d428fdf2",
+  "environment_final_scan_sha256": "0f12027e5374593bb1623ccfb711b32217fb08a0de38783d52a46c503d8cabfd",
+  "environment_incident_sha256": "cbc18cb9a12bbf44ecc2720ca73348ea7dac901ed57e37d85fe973592d6317d4",
+  "environment_scanner_sha256": "686ac45cb7f999749df3df1e0d1ee26ed8a75c8e7c2cf16510aed64c03b7d4e6",
+  "freeze_manifest_sha256": "bbcccf0687e98364a6af4a6d6830acb34fbc48b97ae404dec6f5cdb75aa54c5f",
+  "interruption_incident_sha256": {
+    "20260814T133927Z-campaign-20260814-v4-driver-interrupted": "3a4a0d82582e484172ff96050a7a1391961fc3384b8814df636c451d744f6243",
+    "20260814T185347Z-campaign-20260814-v4-driver-interrupted-2": "2433d9c796809c9f31dfdd7cb9729126e3c37c51147629041330f040e453419f"
+  },
+  "known_incident_sha256": "edd2791f6a6bbf98cbe24e6aa7e820a02a6c243bea3a2bfcc3939bab894ee9ed",
+  "outputs": {
+    "api-equivalent-cost.svg": "633794da193b344bb442eff9153e7e5bfa239c7e7349fa34bc06e62f7a9863f6",
+    "median-latency.svg": "0f36d034c49786220aaa737def1259d84b9d5788a48c051ddaffd1acb3a94ab2",
+    "repeat-reliability.svg": "36049c086896d170558f3887a664efc4740fd27cc15d0d3909905a6f3f4536fd",
+    "report.md": "88df8927ad16035a322670ab0072d0e2beef03d0021da658c1d37e9ca16a2e2d",
+    "resolved-rate.svg": "0ee395a896a37de204386fd9622691be84dc4c8a07a9ba41a286ca0e2f2a1156",
+    "resolved-vs-cost.svg": "faeb8450f7c5d91383a5fac4088f4f8f87a50dcafa37a6ad23a05c17ff8e3892"
+  },
+  "postprocessor_sha256": "b3a2dc67b84cb6297a6ad339f4007eafdee84fcf35b4dfbd6bb00bcd3da8ac62",
+  "provider_incident_sha256": {
+    "20260814T194642Z-campaign-20260814-v4-daybreak-route-rejected": "7f5487cbfa3f8b774dda311e8ac558df0212f8691f372a10e854334eb69a1f45"
+  },
+  "raw_model_outputs_included": false,
+  "schema_version": "1.0",
+  "source_runs_csv_sha256": "510c9f4b71b362ca5ea9e2809087b0916bf1630ba3c9ddbe72e543a582d10c39",
+  "source_summary_sha256": "6a4988309386f38e8ae22f75c81ed8c0b96b445435d0c9678139d7903b76c067",
+  "suite_sha256": "08867dc363932c95e28366ebaf22afa4a3dde156b5dd7e39cef6437f5d1029d8"
+}

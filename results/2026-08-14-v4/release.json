@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "title": "LLM Engineering Benchmark",
+  "release_date": "2026-08-14",
+  "release_version": "v4",
+  "campaign_id": "campaign-20260814-v4",
+  "counted_source_commit": "19484e9a36f1626fa7aadc6b87e1467e1da53153",
+  "counted_source_tree_sha256": "ee3327ff74001ae79175c7b103ebcf88b61b2797d3d966aeacf4efac38d13d6f",
+  "tasks": 40,
+  "tracks": 10,
+  "routes": 6,
+  "underlying_models_declared": 5,
+  "primary_runs": 240,
+  "repeat_runs": 120,
+  "verified_runs": 360,
+  "raw_model_outputs_included": false,
+  "private_grader_implementations_included": false
+}
